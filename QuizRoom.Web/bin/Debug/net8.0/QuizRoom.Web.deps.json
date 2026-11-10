@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "QuizRoom.Web/1.0.0": {
+        "dependencies": {
+          "QuizRoom.Contracts": "1.0.0"
+        },
+        "runtime": {
+          "QuizRoom.Web.dll": {}
+        }
+      },
+      "QuizRoom.Contracts/1.0.0": {
+        "runtime": {
+          "QuizRoom.Contracts.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "QuizRoom.Web/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "QuizRoom.Contracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

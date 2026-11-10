@@ -1,0 +1,135 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\QuizRoom.Web.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\QuizRoom.Contracts.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\QuizRoom.Contracts.csproj",
+        "projectName": "QuizRoom.Contracts",
+        "projectPath": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\QuizRoom.Contracts.csproj",
+        "packagesPath": "C:\\Users\\nazkp\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\nazkp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.427/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\QuizRoom.Web.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\QuizRoom.Web.csproj",
+        "projectName": "QuizRoom.Web",
+        "projectPath": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\QuizRoom.Web.csproj",
+        "packagesPath": "C:\\Users\\nazkp\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\nazkp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\QuizRoom.Contracts.csproj": {
+                "projectPath": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Contracts\\QuizRoom.Contracts.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.427/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
