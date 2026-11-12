@@ -1,0 +1,18 @@
+# MySQL для локальной разработки (нужен только бэкенду).
+# Запуск: docker compose up -d     Остановка: docker compose down
+# Пароли ниже — только для локальной машины.
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: quizroom-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev
+      MYSQL_DATABASE: quizroom
+      MYSQL_USER: quizroom
+      MYSQL_PASSWORD: quizroom_dev
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
