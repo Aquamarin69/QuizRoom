@@ -1,0 +1,232 @@
+﻿@layout HostEmptyLayout
+@page "/host/auth"
+@page "/host"
+@rendermode InteractiveServer
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>@(isRegisterMode ? "Регистрация — QuizRoom" : "Вход — QuizRoom")</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-container">
+        @* Левая приветственная колонка согласно макету *@
+        <div class="auth-promo">
+            <div class="brand-logo">
+                <span class="brand-icon" aria-hidden="true">🎓</span>
+                <span class="brand-dark">Quiz</span><span class="brand-accent">Room</span>
+            </div>
+
+            <h1 class="promo-title">
+                @(isRegisterMode ? "Добро пожаловать в QuizRoom!" : "С возвращением в QuizRoom!")
+            </h1>
+
+            <p class="promo-subtitle">
+                Создавайте интерактивные викторины, запускайте игровые комнаты и проводите соревнования в реальном времени.
+            </p>
+
+            <div class="promo-trophy" aria-hidden="true">
+                <svg viewBox="0 0 120 120" class="trophy-svg">
+                    <path d="M35 20 H85 V52 C85 68 74 80 60 80 C46 80 35 68 35 52 Z" fill="#7C69EF" stroke="#1E1B4B" stroke-width="5" />
+                    <path d="M35 28 H20 C16 28 14 32 15 37 C17 48 25 56 35 56" fill="none" stroke="#1E1B4B" stroke-width="5" stroke-linecap="round" />
+                    <path d="M85 28 H100 C104 28 106 32 105 37 C103 48 95 56 85 56" fill="none" stroke="#1E1B4B" stroke-width="5" stroke-linecap="round" />
+                    <rect x="53" y="80" width="14" height="16" fill="#7C69EF" stroke="#1E1B4B" stroke-width="5" />
+                    <rect x="38" y="96" width="44" height="10" rx="4" fill="#6D28D9" stroke="#1E1B4B" stroke-width="5" />
+                    <polygon points="60,34 64,45 76,45 66,52 70,63 60,56 50,63 54,52 44,45 56,45" fill="#A5F3FC" stroke="#1E1B4B" stroke-width="3" />
+                </svg>
+            </div>
+        </div>
+
+        @* Правая белая карточка с вкладками Вход / Регистрация *@
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button type="button"
+                        class="auth-tab @(isRegisterMode ? "" : "active")"
+                        @onclick="() => SwitchMode(false)">
+                    Вход
+                </button>
+                <button type="button"
+                        class="auth-tab @(isRegisterMode ? "active" : "")"
+                        @onclick="() => SwitchMode(true)">
+                    Регистрация
+                </button>
+            </div>
+
+            @* Вывод ошибки строго из AuthResult.Error *@
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="auth-error" role="alert">
+                    @errorMessage
+                </div>
+            }
+
+            <form class="auth-form" @onsubmit="HandleSubmitAsync">
+                <div class="form-group">
+                    <label for="host-login">Логин</label>
+                    <div class="input-wrapper">
+                        <input id="host-login"
+                               type="text"
+                               class="form-input"
+                               @bind="login"
+                               placeholder="@(isRegisterMode ? "Придумайте логин" : "Введите логин")"
+                               autocomplete="username" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="host-password">Пароль</label>
+                    <div class="input-wrapper">
+                        <input id="host-password"
+                               type="@(showPassword ? "text" : "password")"
+                               class="form-input"
+                               @bind="password"
+                               placeholder="@(isRegisterMode ? "Придумайте пароль" : "Введите пароль")"
+                               autocomplete="@(isRegisterMode ? "new-password" : "current-password")" />
+                        <button type="button"
+                                class="toggle-password"
+                                @onclick="TogglePasswordVisibility"
+                                title="Показать или скрыть пароль">
+                            @(showPassword ? "🙈" : "👁")
+                        </button>
+                    </div>
+                </div>
+
+                @if (isRegisterMode)
+                {
+                    <div class="form-group">
+                        <label for="host-confirm-password">Повторите пароль</label>
+                        <div class="input-wrapper">
+                            <input id="host-confirm-password"
+                                   type="@(showConfirmPassword ? "text" : "password")"
+                                   class="form-input"
+                                   @bind="confirmPassword"
+                                   placeholder="Повторите пароль"
+                                   autocomplete="new-password" />
+                            <button type="button"
+                                    class="toggle-password"
+                                    @onclick="ToggleConfirmPasswordVisibility"
+                                    title="Показать или скрыть пароль">
+                                @(showConfirmPassword ? "🙈" : "👁")
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                <button type="submit" class="btn-primary-pill" disabled="@isSubmitting">
+                    @(isRegisterMode ? "Зарегистрироваться" : "Войти")
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                @if (isRegisterMode)
+                {
+                    <span>Уже есть аккаунт? </span>
+                    <button type="button" class="link-switch" @onclick="() => SwitchMode(false)">Войти</button>
+                }
+                else
+                {
+                    <span>Нет аккаунта? </span>
+                    <button type="button" class="link-switch" @onclick="() => SwitchMode(true)">Зарегистрироваться</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Режим формы: false — Вход, true — Регистрация
+    private bool isRegisterMode;
+
+    // Поля ввода формы
+    private string login = string.Empty;
+    private string password = string.Empty;
+    private string confirmPassword = string.Empty;
+
+    // Флаги видимости пароля
+    private bool showPassword;
+    private bool showConfirmPassword;
+
+    // Текст ошибки, возвращаемый из AuthResult.Error
+    private string? errorMessage;
+
+    // Блокировка кнопки во время отправки запроса
+    private bool isSubmitting;
+
+    /// <summary>
+    /// Если ведущий уже авторизован в текущей сессии, сразу перенаправляет к списку викторин.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (AuthService.CurrentHostId is not null)
+        {
+            Navigation.NavigateTo("/host/quizzes");
+        }
+    }
+
+    /// <summary>
+    /// Переключает вкладки Вход / Регистрация и очищает сообщение об ошибке.
+    /// </summary>
+    /// <param name="register">True для режима регистрации, false для входа.</param>
+    private void SwitchMode(bool register)
+    {
+        isRegisterMode = register;
+        errorMessage = null;
+        confirmPassword = string.Empty;
+    }
+
+    /// <summary>
+    /// Переключает отображение символов в основном поле пароля.
+    /// </summary>
+    private void TogglePasswordVisibility() => showPassword = !showPassword;
+
+    /// <summary>
+    /// Переключает отображение символов в поле подтверждения пароля.
+    /// </summary>
+    private void ToggleConfirmPasswordVisibility() => showConfirmPassword = !showConfirmPassword;
+
+    /// <summary>
+    /// Выполняет вход или регистрацию ведущего через IAuthService.
+    /// </summary>
+    private async Task HandleSubmitAsync()
+    {
+        errorMessage = null;
+        isSubmitting = true;
+
+        try
+        {
+            if (isRegisterMode)
+            {
+                // Если пароли не совпадают, передаём пустой пароль в сервис,
+                // чтобы получить стандартное сообщение об ошибке из AuthResult.Error
+                string passwordToRegister = password == confirmPassword ? password : string.Empty;
+                AuthResult regResult = await AuthService.RegisterAsync(login, passwordToRegister);
+
+                if (regResult.Success)
+                {
+                    Navigation.NavigateTo("/host/quizzes");
+                }
+                else
+                {
+                    errorMessage = regResult.Error;
+                }
+            }
+            else
+            {
+                AuthResult loginResult = await AuthService.LoginAsync(login, password);
+
+                if (loginResult.Success)
+                {
+                    Navigation.NavigateTo("/host/quizzes");
+                }
+                else
+                {
+                    errorMessage = loginResult.Error;
+                }
+            }
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

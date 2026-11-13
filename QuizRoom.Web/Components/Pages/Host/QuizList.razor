@@ -1,0 +1,23 @@
+﻿@page "/host/quizzes"
+@rendermode InteractiveServer
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Мои викторины — QuizRoom</PageTitle>
+
+<div>
+    <h2>Список викторин (в разработке)</h2>
+    <button type="button" @onclick="LogoutAsync">Выйти</button>
+</div>
+
+@code {
+    /// <summary>
+    /// Завершает сессию ведущего и возвращает на страницу авторизации.
+    /// </summary>
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/host/auth");
+    }
+}
