@@ -1,0 +1,28 @@
+﻿@page "/host/quizzes/{QuizId:int}/launch"
+@layout HostDashboardLayout
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<PageTitle>Запуск викторины — QuizRoom</PageTitle>
+
+<div>
+    <h2>Лобби игровой комнаты (в разработке)</h2>
+    <p>Выбрана викторина с ID: @QuizId</p>
+    <button type="button" @onclick="GoBack">← Назад к списку викторин</button>
+</div>
+
+@code {
+    /// <summary>
+    /// Идентификатор запускаемой викторины из маршрута.
+    /// </summary>
+    [Parameter]
+    public int QuizId { get; set; }
+
+    /// <summary>
+    /// Возвращает ведущего обратно к списку викторин.
+    /// </summary>
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/host/quizzes");
+    }
+}

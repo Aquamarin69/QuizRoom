@@ -1,0 +1,70 @@
+﻿@inherits LayoutComponentBase
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="host-shell">
+    @* Верхняя лавандовая шапка кабинета ведущего *@
+    <header class="host-topbar">
+        <a href="/host/quizzes" class="brand-link">
+            <span class="brand-icon" aria-hidden="true">🎓</span>
+            <span class="brand-dark">Quiz</span><span class="brand-accent">Room</span>
+        </a>
+    </header>
+
+    <div class="host-body">
+        @* Левая боковая панель навигации согласно макету *@
+        <aside class="host-sidebar">
+            <nav class="sidebar-nav" aria-label="Меню ведущего">
+                <a href="/host/quizzes"
+                   class="nav-pill @(IsActive("/host/quizzes") ? "active" : "")">
+                    Мои викторины
+                </a>
+
+                <a href="/host/quizzes?create=1"
+                   class="nav-pill @(IsActiveCreate() ? "active" : "")">
+                    + Создать викторину
+                </a>
+
+                <button type="button"
+                        class="nav-pill nav-logout"
+                        @onclick="LogoutAsync">
+                    Выход
+                </button>
+            </nav>
+        </aside>
+
+        @* Правая белая рабочая область для контента страниц *@
+        <main class="host-content">
+            @Body
+        </main>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Проверяет, активен ли основной раздел списка викторин.
+    /// </summary>
+    private bool IsActive(string path)
+    {
+        var uri = Navigation.Uri;
+        return uri.EndsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Проверяет, открыт ли режим создания новой викторины.
+    /// </summary>
+    private bool IsActiveCreate()
+    {
+        return Navigation.Uri.Contains("create=1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Завершает сессию ведущего и перенаправляет на страницу входа.
+    /// </summary>
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/host/auth");
+    }
+}

@@ -1,23 +1,293 @@
 ﻿@page "/host/quizzes"
+@layout HostDashboardLayout
 @rendermode InteractiveServer
 @using QuizRoom.Contracts
+@inject IQuizService QuizService
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-<PageTitle>Мои викторины — QuizRoom</PageTitle>
+<PageTitle>Список викторин — QuizRoom</PageTitle>
 
-<div>
-    <h2>Список викторин (в разработке)</h2>
-    <button type="button" @onclick="LogoutAsync">Выйти</button>
+<div class="quiz-list-page">
+    @* Заголовок раздела и кнопка создания викторины *@
+    <div class="list-header">
+        <h1 class="list-title">Список викторин</h1>
+        <button type="button" class="btn-create-main" @onclick="OpenCreateForm">
+            Создать викторину
+        </button>
+    </div>
+
+    @* Форма создания новой викторины с выводом ошибок из ValidationResult.Errors *@
+    @if (isCreating)
+    {
+        <div class="create-box">
+            <h2 class="create-box-title">Новая викторина</h2>
+
+            @if (createErrors.Count > 0)
+            {
+                <div class="validation-errors" role="alert">
+                    @foreach (var err in createErrors)
+                    {
+                        <div>@err</div>
+                    }
+                </div>
+            }
+
+            <div class="create-form-row">
+                <input type="text"
+                       class="create-input"
+                       @bind="newQuizTitle"
+                       placeholder="Введите название викторины" />
+                <button type="button" class="btn-save" @onclick="CreateQuizAsync" disabled="@isBusy">
+                    Создать
+                </button>
+                <button type="button" class="btn-cancel" @onclick="CloseCreateForm" disabled="@isBusy">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    }
+
+    @* Состояние загрузки, пустой список или карточки викторин *@
+    @if (quizzes is null)
+    {
+        <p class="empty-state">Загрузка списка викторин...</p>
+    }
+    else if (quizzes.Count == 0)
+    {
+        <div class="empty-state-box">
+            <p class="empty-state-text">У вас пока нет викторин</p>
+        </div>
+    }
+    else
+    {
+        <div class="quiz-cards">
+            @foreach (var quiz in quizzes)
+            {
+                <div class="quiz-card">
+                    <div class="quiz-info">
+                        <div class="quiz-badge" aria-hidden="true"></div>
+                        <div class="quiz-meta">
+                            <span class="quiz-title">@quiz.Title</span>
+                            <span class="quiz-count">@FormatQuestionsCount(quiz.QuestionCount)</span>
+                        </div>
+                    </div>
+
+                    @* Кнопки управления викториной: Запустить, Изменить, Удалить (с подтверждением) *@
+                    <div class="quiz-actions">
+                        @if (confirmDeleteQuizId == quiz.Id)
+                        {
+                            <span class="confirm-label">Удалить?</span>
+                            <button type="button"
+                                    class="btn-action btn-delete-confirm"
+                                    @onclick="() => ConfirmDeleteAsync(quiz.Id)"
+                                    disabled="@isBusy">
+                                Да
+                            </button>
+                            <button type="button"
+                                    class="btn-action btn-cancel-small"
+                                    @onclick="CancelDelete"
+                                    disabled="@isBusy">
+                                Нет
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="btn-action btn-launch"
+                                    @onclick="() => LaunchQuiz(quiz.Id)">
+                                запустить
+                            </button>
+                            <button type="button"
+                                    class="btn-action btn-edit"
+                                    @onclick="() => EditQuiz(quiz.Id)">
+                                изменить
+                            </button>
+                            <button type="button"
+                                    class="btn-action btn-delete"
+                                    @onclick="() => RequestDelete(quiz.Id)">
+                                удалить
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 
 @code {
+    // Параметр строки запроса (?create=1) при переходе из бокового меню
+    [SupplyParameterFromQuery(Name = "create")]
+    public int? CreateQuery { get; set; }
+
+    // Список викторин текущего ведущего
+    private List<QuizSummaryDto>? quizzes;
+
+    // Состояние формы создания новой викторины
+    private bool isCreating;
+    private string newQuizTitle = string.Empty;
+    private List<string> createErrors = new();
+
+    // Идентификатор викторины, ожидающей подтверждения удаления
+    private int? confirmDeleteQuizId;
+
+    // Флаг выполнения асинхронной операции
+    private bool isBusy;
+
     /// <summary>
-    /// Завершает сессию ведущего и возвращает на страницу авторизации.
+    /// Загружает список викторин при инициализации страницы.
     /// </summary>
-    private async Task LogoutAsync()
+    protected override async Task OnInitializedAsync()
     {
-        await AuthService.LogoutAsync();
-        Navigation.NavigateTo("/host/auth");
+        if (AuthService.CurrentHostId is null)
+        {
+            Navigation.NavigateTo("/host/auth");
+            return;
+        }
+
+        await LoadQuizzesAsync();
+    }
+
+    /// <summary>
+    /// Открывает форму создания, если пользователь перешёл по кнопке «+ Создать викторину» из меню.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        if (CreateQuery == 1 && !isCreating)
+        {
+            OpenCreateForm();
+        }
+    }
+
+    /// <summary>
+    /// Получает актуальный список викторин из сервиса.
+    /// </summary>
+    private async Task LoadQuizzesAsync()
+    {
+        quizzes = await QuizService.GetMyQuizzesAsync();
+    }
+
+    /// <summary>
+    /// Открывает панель ввода названия новой викторины.
+    /// </summary>
+    private void OpenCreateForm()
+    {
+        isCreating = true;
+        newQuizTitle = string.Empty;
+        createErrors.Clear();
+    }
+
+    /// <summary>
+    /// Закрывает панель создания викторины и очищает параметр запроса.
+    /// </summary>
+    private void CloseCreateForm()
+    {
+        isCreating = false;
+        newQuizTitle = string.Empty;
+        createErrors.Clear();
+
+        if (CreateQuery == 1)
+        {
+            Navigation.NavigateTo("/host/quizzes");
+        }
+    }
+
+    /// <summary>
+    /// Создаёт новую викторину и при успехе переходит в редактор викторины.
+    /// </summary>
+    private async Task CreateQuizAsync()
+    {
+        createErrors.Clear();
+        isBusy = true;
+
+        try
+        {
+            var (quizId, validation) = await QuizService.CreateQuizAsync(newQuizTitle);
+
+            if (validation.IsValid && quizId.HasValue)
+            {
+                isCreating = false;
+                Navigation.NavigateTo($"/host/quizzes/{quizId.Value}/edit");
+            }
+            else
+            {
+                // Выводим ошибки валидации строго из контракта ValidationResult
+                createErrors = validation.Errors;
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Запрашивает подтверждение перед удалением викторины.
+    /// </summary>
+    private void RequestDelete(int quizId)
+    {
+        confirmDeleteQuizId = quizId;
+    }
+
+    /// <summary>
+    /// Отменяет удаление викторины.
+    /// </summary>
+    private void CancelDelete()
+    {
+        confirmDeleteQuizId = null;
+    }
+
+    /// <summary>
+    /// Подтверждает удаление викторины и обновляет список.
+    /// </summary>
+    private async Task ConfirmDeleteAsync(int quizId)
+    {
+        isBusy = true;
+
+        try
+        {
+            await QuizService.DeleteQuizAsync(quizId);
+            confirmDeleteQuizId = null;
+            await LoadQuizzesAsync();
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Переводит ведущего на страницу редактирования выбранной викторины.
+    /// </summary>
+    private void EditQuiz(int quizId)
+    {
+        Navigation.NavigateTo($"/host/quizzes/{quizId}/edit");
+    }
+
+    /// <summary>
+    /// Переводит ведущего на страницу-заглушку запуска игровой комнаты.
+    /// </summary>
+    private void LaunchQuiz(int quizId)
+    {
+        Navigation.NavigateTo($"/host/quizzes/{quizId}/launch");
+    }
+
+    /// <summary>
+    /// Возвращает корректное склонение слова «вопрос» для отображения в карточке.
+    /// </summary>
+    private static string FormatQuestionsCount(int count)
+    {
+        int mod100 = count % 100;
+        int mod10 = count % 10;
+
+        if (mod100 is >= 11 and <= 19)
+            return $"{count} вопросов";
+        if (mod10 == 1)
+            return $"{count} вопрос";
+        if (mod10 is >= 2 and <= 4)
+            return $"{count} вопроса";
+
+        return $"{count} вопросов";
     }
 }
