@@ -1,0 +1,420 @@
+﻿/* Заголовок редактора и ссылка возврата «← к списку» */
+.editor-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 24px;
+}
+
+.editor-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.link-back {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+    .link-back:hover {
+        color: #6d28d9;
+        text-decoration: underline;
+    }
+
+.section-label {
+    display: block;
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Блок редактирования названия викторины */
+.title-section {
+    margin-bottom: 28px;
+}
+
+.title-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.editor-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 11px 16px;
+    border: 2px solid #d8cbed;
+    border-radius: 14px;
+    font-size: 15px;
+    color: #1f2937;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+    .editor-input:focus {
+        border-color: #6d28d9;
+    }
+
+/* Уведомления и ошибки валидации */
+.validation-errors {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.success-notice {
+    background-color: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+    border-radius: 12px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Список добавленных вопросов */
+.questions-section {
+    margin-bottom: 24px;
+}
+
+.empty-questions {
+    background-color: #f5f2fb;
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.question-item {
+    background-color: #f8f6fc;
+    border: 2px solid #e2d9f3;
+    border-radius: 16px;
+    padding: 14px 18px;
+}
+
+.question-item-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.question-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background-color: #c6b7e2;
+    color: #111827;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.question-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.question-time {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.question-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #9f7aea;
+    color: #1f2937;
+}
+
+.btn-delete {
+    background-color: #f87171;
+    color: #1f2937;
+}
+
+/* Превью вариантов ответа в списке вопросов */
+.question-options-preview {
+    list-style: none;
+    margin: 12px 0 0 42px;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border: 1px solid #e2d9f3;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.preview-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+    .preview-option.correct {
+        font-weight: 700;
+        color: #6d28d9;
+    }
+
+.radio-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #d8cbed;
+    flex-shrink: 0;
+}
+
+    .radio-dot.checked {
+        background-color: #6d28d9;
+    }
+
+/* Панель кнопки «Добавить вопрос» */
+.add-question-bar {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.limit-hint {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Карточка формы редактирования/создания вопроса */
+.question-form-card {
+    background-color: #f5f2fb;
+    border: 2px solid #c6b7e2;
+    border-radius: 18px;
+    padding: 20px 24px;
+    margin-top: 20px;
+}
+
+.form-card-title {
+    margin: 0 0 14px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.form-top-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.form-field-grow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .form-field-grow label,
+    .form-field-time label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+.form-field-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-input {
+    width: 76px;
+    padding: 10px 12px;
+    border: 2px solid #d8cbed;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+}
+
+    .time-input:focus {
+        border-color: #6d28d9;
+    }
+
+/* Блок вариантов ответа (2–4 шт.) */
+.options-box {
+    background-color: #ffffff;
+    border: 2px solid #d8cbed;
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.options-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.btn-add-option {
+    padding: 6px 14px;
+    background-color: #ede8f5;
+    color: #6d28d9;
+    border: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn-add-option:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.radio-select {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #9f7aea;
+    background-color: #ede8f5;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+}
+
+    .radio-select.selected {
+        background-color: #6d28d9;
+        border-color: #6d28d9;
+    }
+
+.option-input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1px solid #d8cbed;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+}
+
+    .option-input:focus {
+        border-color: #6d28d9;
+    }
+
+.btn-remove-option {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn-remove-option:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+/* Нижние кнопки формы */
+.form-footer-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-pill-primary {
+    padding: 11px 26px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(109, 40, 217, 0.25);
+}
+
+    .btn-pill-primary:hover:not(:disabled) {
+        background-color: #5b21b6;
+    }
+
+    .btn-pill-primary:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+.btn-pill-secondary {
+    padding: 11px 24px;
+    background-color: #c6b7e2;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn-pill-secondary:hover:not(:disabled) {
+        background-color: #b19cd9;
+    }

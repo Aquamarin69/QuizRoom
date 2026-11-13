@@ -1,0 +1,472 @@
+﻿@page "/host/quizzes/{QuizId:int}/edit"
+@layout HostDashboardLayout
+@rendermode InteractiveServer
+@using QuizRoom.Contracts
+@inject IQuizService QuizService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Редактор викторины — QuizRoom</PageTitle>
+
+<div class="editor-page">
+    @* Заголовок и ссылка возврата к списку викторин *@
+    <div class="editor-header">
+        <h1 class="editor-title">Редактор викторины</h1>
+        <button type="button" class="link-back" @onclick="GoBack">← к списку</button>
+    </div>
+
+    @if (quiz is null)
+    {
+        <p class="loading-text">Загрузка викторины...</p>
+    }
+    else
+    {
+        @* Блок редактирования названия викторины *@
+        <section class="title-section">
+            <label for="quiz-title-input" class="section-label">Название викторины</label>
+
+            @if (titleErrors.Count > 0)
+            {
+                <div class="validation-errors" role="alert">
+                    @foreach (var err in titleErrors)
+                    {
+                        <div>@err</div>
+                    }
+                </div>
+            }
+
+            @if (titleSavedNotice)
+            {
+                <div class="success-notice">Название сохранено</div>
+            }
+
+            <div class="title-row">
+                <input id="quiz-title-input"
+                       type="text"
+                       class="editor-input"
+                       @bind="quizTitle"
+                       placeholder="Введите название викторины" />
+                <button type="button"
+                        class="btn-pill-primary"
+                        @onclick="SaveTitleAsync"
+                        disabled="@isBusy">
+                    Сохранить название
+                </button>
+            </div>
+        </section>
+
+        @* Раздел списка вопросов викторины *@
+        <section class="questions-section">
+            <div class="questions-header">
+                <h2 class="section-label">Вопросы (@quiz.Questions.Count / 20)</h2>
+            </div>
+
+            @if (quiz.Questions.Count == 0 && !isQuestionFormOpen)
+            {
+                <div class="empty-questions">
+                    В этой викторине пока нет вопросов. Нажмите «Добавить вопрос», чтобы создать первый.
+                </div>
+            }
+            else
+            {
+                <div class="questions-list">
+                    @foreach (var q in quiz.Questions)
+                    {
+                        <div class="question-item">
+                            <div class="question-item-top">
+                                <span class="question-num">@q.OrderNum.</span>
+                                <span class="question-text">@q.Text</span>
+                                <span class="question-time">время(с): <strong>@q.TimeLimitSec</strong></span>
+
+                                <div class="question-item-actions">
+                                    <button type="button"
+                                            class="btn-small btn-edit"
+                                            @onclick="() => OpenEditQuestion(q)"
+                                            disabled="@isBusy">
+                                        изменить
+                                    </button>
+                                    <button type="button"
+                                            class="btn-small btn-delete"
+                                            @onclick="() => DeleteQuestionAsync(q.Id!.Value)"
+                                            disabled="@isBusy">
+                                        удалить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <ul class="question-options-preview">
+                                @foreach (var opt in q.Options)
+                                {
+                                    <li class="preview-option @(opt.IsCorrect ? "correct" : "")">
+                                        <span class="radio-dot @(opt.IsCorrect ? "checked" : "")"></span>
+                                        <span>@opt.Text</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* Кнопка «Добавить вопрос» неактивна при 20 вопросах согласно ТЗ *@
+            @if (!isQuestionFormOpen)
+            {
+                <div class="add-question-bar">
+                    <button type="button"
+                            class="btn-pill-primary"
+                            @onclick="OpenNewQuestion"
+                            disabled="@(quiz.Questions.Count >= 20 || isBusy)">
+                        Добавить вопрос
+                    </button>
+                    @if (quiz.Questions.Count >= 20)
+                    {
+                        <span class="limit-hint">Достигнут максимум в 20 вопросов</span>
+                    }
+                </div>
+            }
+        </section>
+
+        @* Форма создания или редактирования вопроса *@
+        @if (isQuestionFormOpen)
+        {
+            <section class="question-form-card">
+                <h3 class="form-card-title">
+                    @(editingQuestionId.HasValue ? "Редактирование вопроса" : "Новый вопрос")
+                </h3>
+
+                @* Вывод всех ошибок валидации строго из ValidationResult.Errors *@
+                @if (questionErrors.Count > 0)
+                {
+                    <div class="validation-errors" role="alert">
+                        @foreach (var err in questionErrors)
+                        {
+                            <div>@err</div>
+                        }
+                    </div>
+                }
+
+                <div class="form-top-row">
+                    <div class="form-field-grow">
+                        <label for="q-text">Текст вопроса</label>
+                        <input id="q-text"
+                               type="text"
+                               class="editor-input"
+                               @bind="questionText"
+                               placeholder="Введите текст вопроса" />
+                    </div>
+
+                    <div class="form-field-time">
+                        <label for="q-time">время(с):</label>
+                        <input id="q-time"
+                               type="number"
+                               class="time-input"
+                               min="5"
+                               max="120"
+                               @bind="timeLimitSec" />
+                    </div>
+                </div>
+
+                @* Варианты ответа (от 2 до 4) с выбором единственного правильного *@
+                <div class="options-box">
+                    <div class="options-header">
+                        <span>Варианты ответа (отметьте правильный):</span>
+                        <button type="button"
+                                class="btn-add-option"
+                                @onclick="AddOption"
+                                disabled="@(optionModels.Count >= 4)">
+                            + Добавить вариант
+                        </button>
+                    </div>
+
+                    <div class="options-list">
+                        @for (int i = 0; i < optionModels.Count; i++)
+                        {
+                            int index = i;
+                            var opt = optionModels[index];
+                            <div class="option-row">
+                                <button type="button"
+                                        class="radio-select @(opt.IsCorrect ? "selected" : "")"
+                                        @onclick="() => SelectCorrectOption(index)"
+                                        title="Отметить как правильный ответ"
+                                        aria-label="Отметить вариант @(index + 1) как правильный">
+                                </button>
+
+                                <input type="text"
+                                       class="option-input"
+                                       @bind="opt.Text"
+                                       placeholder="Вариант ответа @(index + 1)" />
+
+                                <button type="button"
+                                        class="btn-remove-option"
+                                        @onclick="() => RemoveOption(index)"
+                                        disabled="@(optionModels.Count <= 2)"
+                                        title="Удалить вариант">
+                                    ✕
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-footer-actions">
+                    <button type="button"
+                            class="btn-pill-secondary"
+                            @onclick="CancelQuestionForm"
+                            disabled="@isBusy">
+                        Отмена
+                    </button>
+                    <button type="button"
+                            class="btn-pill-primary"
+                            @onclick="SaveQuestionAsync"
+                            disabled="@isBusy">
+                        Сохранить
+                    </button>
+                </div>
+            </section>
+        }
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Идентификатор редактируемой викторины из маршрута.
+    /// </summary>
+    [Parameter]
+    public int QuizId { get; set; }
+
+    // Загруженная модель викторины
+    private QuizEditDto? quiz;
+
+    // Поле и состояние сохранения названия викторины
+    private string quizTitle = string.Empty;
+    private List<string> titleErrors = new();
+    private bool titleSavedNotice;
+
+    // Состояние формы редактирования/добавления вопроса
+    private bool isQuestionFormOpen;
+    private int? editingQuestionId;
+    private int editingOrderNum;
+    private string questionText = string.Empty;
+    private int timeLimitSec = 20;
+    private List<EditableOption> optionModels = new();
+    private List<string> questionErrors = new();
+
+    // Блокировка кнопок на время выполнения запроса
+    private bool isBusy;
+
+    /// <summary>
+    /// Загружает данные викторины при открытии редактора.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentHostId is null)
+        {
+            Navigation.NavigateTo("/host/auth");
+            return;
+        }
+
+        await LoadQuizAsync();
+    }
+
+    /// <summary>
+    /// Получает актуальное состояние викторины из сервиса.
+    /// </summary>
+    private async Task LoadQuizAsync()
+    {
+        quiz = await QuizService.GetQuizAsync(QuizId);
+        if (quiz is null)
+        {
+            Navigation.NavigateTo("/host/quizzes");
+            return;
+        }
+
+        quizTitle = quiz.Title;
+    }
+
+    /// <summary>
+    /// Сохраняет изменённое название викторины с проверкой через RenameQuizAsync.
+    /// </summary>
+    private async Task SaveTitleAsync()
+    {
+        titleErrors.Clear();
+        titleSavedNotice = false;
+        isBusy = true;
+
+        try
+        {
+            ValidationResult result = await QuizService.RenameQuizAsync(QuizId, quizTitle);
+            if (result.IsValid)
+            {
+                titleSavedNotice = true;
+                await LoadQuizAsync();
+            }
+            else
+            {
+                titleErrors = result.Errors;
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Открывает форму добавления нового вопроса с двумя пустыми вариантами по умолчанию.
+    /// </summary>
+    private void OpenNewQuestion()
+    {
+        if (quiz is null || quiz.Questions.Count >= 20)
+            return;
+
+        editingQuestionId = null;
+        editingOrderNum = quiz.Questions.Count + 1;
+        questionText = string.Empty;
+        timeLimitSec = 20;
+        questionErrors.Clear();
+        optionModels = new List<EditableOption>
+        {
+            new() { Text = string.Empty, IsCorrect = true },
+            new() { Text = string.Empty, IsCorrect = false }
+        };
+        isQuestionFormOpen = true;
+    }
+
+    /// <summary>
+    /// Открывает форму редактирования выбранного вопроса, заполняя её текущими данными.
+    /// </summary>
+    private void OpenEditQuestion(QuestionEditDto question)
+    {
+        editingQuestionId = question.Id;
+        editingOrderNum = question.OrderNum;
+        questionText = question.Text;
+        timeLimitSec = question.TimeLimitSec;
+        questionErrors.Clear();
+        optionModels = question.Options
+            .Select(o => new EditableOption { Id = o.Id, Text = o.Text, IsCorrect = o.IsCorrect })
+            .ToList();
+        isQuestionFormOpen = true;
+    }
+
+    /// <summary>
+    /// Закрывает форму редактирования вопроса без сохранения.
+    /// </summary>
+    private void CancelQuestionForm()
+    {
+        isQuestionFormOpen = false;
+        questionErrors.Clear();
+    }
+
+    /// <summary>
+    /// Добавляет новый вариант ответа (максимум 4 варианта).
+    /// </summary>
+    private void AddOption()
+    {
+        if (optionModels.Count < 4)
+        {
+            optionModels.Add(new EditableOption { Text = string.Empty, IsCorrect = false });
+        }
+    }
+
+    /// <summary>
+    /// Удаляет вариант ответа по индексу (минимум 2 варианта).
+    /// </summary>
+    private void RemoveOption(int index)
+    {
+        if (optionModels.Count <= 2 || index < 0 || index >= optionModels.Count)
+            return;
+
+        optionModels.RemoveAt(index);
+    }
+
+    /// <summary>
+    /// Отмечает выбранный вариант как единственный правильный ответ.
+    /// </summary>
+    private void SelectCorrectOption(int selectedIndex)
+    {
+        for (int i = 0; i < optionModels.Count; i++)
+        {
+            optionModels[i].IsCorrect = (i == selectedIndex);
+        }
+    }
+
+    /// <summary>
+    /// Отправляет вопрос на валидацию и сохранение в IQuizService.
+    /// </summary>
+    private async Task SaveQuestionAsync()
+    {
+        questionErrors.Clear();
+        isBusy = true;
+
+        try
+        {
+            var optionsDto = optionModels
+                .Select(o => new OptionEditDto(o.Id, o.Text, o.IsCorrect))
+                .ToList();
+
+            var questionDto = new QuestionEditDto(
+                editingQuestionId,
+                editingOrderNum,
+                questionText,
+                timeLimitSec,
+                optionsDto);
+
+            ValidationResult result = await QuizService.SaveQuestionAsync(QuizId, questionDto);
+
+            if (result.IsValid)
+            {
+                isQuestionFormOpen = false;
+                await LoadQuizAsync();
+            }
+            else
+            {
+                // Выводим все ошибки валидации из сервиса без изменений
+                questionErrors = result.Errors;
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Удаляет вопрос из викторины и обновляет список вопросов.
+    /// </summary>
+    private async Task DeleteQuestionAsync(int questionId)
+    {
+        isBusy = true;
+
+        try
+        {
+            await QuizService.DeleteQuestionAsync(QuizId, questionId);
+            if (editingQuestionId == questionId)
+            {
+                isQuestionFormOpen = false;
+            }
+            await LoadQuizAsync();
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Возвращает ведущего к списку викторин.
+    /// </summary>
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/host/quizzes");
+    }
+
+    /// <summary>
+    /// Вспомогательная изменяемая модель варианта ответа для привязки в форме.
+    /// </summary>
+    private sealed class EditableOption
+    {
+        public int? Id { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public bool IsCorrect { get; set; }
+    }
+}
