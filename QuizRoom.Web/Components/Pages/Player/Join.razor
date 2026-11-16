@@ -1,0 +1,123 @@
+
+@page "/player/join"
+@layout PlayerLayout
+
+<PageTitle>Подключение к игре — QuizRoom</PageTitle>
+
+<div class="join-page">
+    @if (!isJoined)
+    {
+        <section class="join-card">
+            <div class="join-heading">
+                <span class="join-subtitle">QUIZROOM</span>
+                <h1>Подключение к игре</h1>
+                <p>Введи код комнаты и своё имя, чтобы присоединиться к викторине</p>
+            </div>
+
+            <div class="join-form">
+                <div class="form-group">
+                    <label for="roomCode">Код комнаты</label>
+                    <input id="roomCode"
+                           type="text"
+                           inputmode="numeric"
+                           maxlength="10"
+                           placeholder="Например, 123456"
+                           @bind="roomCode"
+                           @bind:event="oninput" />
+                </div>
+
+                <div class="form-group">
+                    <label for="nickname">Твой ник</label>
+                    <input id="nickname"
+                           type="text"
+                           maxlength="20"
+                           placeholder="Как тебя называть?"
+                           @bind="nickname"
+                           @bind:event="oninput" />
+                    <span class="field-hint">От 2 до 20 символов</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="join-error" role="alert">
+                        @errorMessage
+                    </div>
+                }
+
+                <button class="join-button" @onclick="JoinGame">
+                    Присоединиться
+                </button>
+            </div>
+
+            <div class="join-footer">
+                Готов? Тогда начинаем!
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="waiting-card">
+            <div class="waiting-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <span class="join-subtitle">QUIZROOM</span>
+            <h1>Ждём начала игры</h1>
+            <p>Ты успешно подключился к комнате.</p>
+
+            <div class="waiting-player">
+                <span class="player-avatar">@nicknameInitial</span>
+                <div>
+                    <strong>@nickname</strong>
+                    <span>Участник игры</span>
+                </div>
+            </div>
+
+            <div class="room-code-display">
+                <span>Код комнаты</span>
+                <strong>@roomCode</strong>
+            </div>
+
+            <p class="waiting-hint">
+                Ожидай, пока ведущий начнёт викторину
+            </p>
+        </section>
+    }
+</div>
+
+@code {
+    private string roomCode = "";
+    private string nickname = "";
+    private string? errorMessage;
+    private bool isJoined;
+
+    private string nicknameInitial =>
+        string.IsNullOrWhiteSpace(nickname)
+            ? "?"
+            : nickname.Trim()[0].ToString().ToUpper();
+
+    private void JoinGame()
+    {
+        errorMessage = null;
+
+        roomCode = roomCode.Trim();
+        nickname = nickname.Trim();
+
+        if (string.IsNullOrWhiteSpace(roomCode) ||
+            !roomCode.All(char.IsDigit))
+        {
+            errorMessage = "Введи корректный числовой код комнаты";
+            return;
+        }
+
+        if (nickname.Length < 2 || nickname.Length > 20)
+        {
+            errorMessage = "Ник должен содержать от 2 до 20 символов";
+            return;
+        }
+
+        errorMessage = "Подключение к комнате пока не настроено. Дождись подключения игрового сервиса.";
+    }
+}

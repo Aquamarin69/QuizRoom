@@ -1,0 +1,53 @@
+
+@page "/player/question-result"
+@layout PlayerLayout
+
+<PageTitle>Итоги викторины — QuizRoom</PageTitle>
+
+<div class="question-result-page">
+    <section class="question-result-card">
+
+        <div class="result-header">
+            <span class="result-label">QUIZROOM</span>
+            <h1>Игра завершена!</h1>
+            <p>Вот результаты этой викторины</p>
+        </div>
+
+        <div class="final-score">
+            <span class="final-score-label">ТВОЙ РЕЗУЛЬТАТ</span>
+            <div class="final-score-value">@TotalScore</div>
+            <span class="final-score-caption">набранных баллов</span>
+        </div>
+
+        <div class="final-rank">
+            <span>Твоё итоговое место</span>
+            <strong>@(PlayerRank > 0 ? $"#{PlayerRank}" : "—")</strong>
+        </div>
+
+        <div class="result-leaderboard">
+            <Leaderboard
+                Entries="FinalLeaderboard"
+                CurrentPlayerNick="CurrentPlayerNick" />
+        </div>
+
+        <a href="/" class="return-button">
+            Вернуться на главную
+        </a>
+
+    </section>
+</div>
+
+@code {
+    [Parameter]
+    public List<LeaderboardEntryDto> FinalLeaderboard { get; set; } = new();
+
+    [Parameter]
+    public string CurrentPlayerNick { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TotalScore { get; set; } = 0;
+
+    private int PlayerRank =>
+        FinalLeaderboard.FindIndex(
+            x => x.Nick == CurrentPlayerNick) + 1;
+}

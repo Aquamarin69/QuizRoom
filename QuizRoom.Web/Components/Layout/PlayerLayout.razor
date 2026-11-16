@@ -1,0 +1,31 @@
+
+@inherits LayoutComponentBase
+
+@*
+    Отдельный макет для страниц игрока.
+    Не использует стандартное боковое меню ведущего.
+*@
+
+<div class="player-layout">
+
+    @* Верхняя панель приложения *@
+    <header class="player-header">
+
+        @* Текстовый логотип QuizRoom *@
+        <a href="/" class="player-logo">
+            <span>Quiz</span><span class="logo-accent">Room</span>
+        </a>
+
+        @* Кнопка профиля *@
+        <a href="/player/profile" class="profile-button">
+            Профиль
+        </a>
+
+    </header>
+
+    @* Основное содержимое текущей страницы *@
+    <main class="player-content">
+        @Body
+    </main>
+
+</div>
