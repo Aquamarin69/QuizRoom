@@ -165,3 +165,32 @@ public interface IQuizHubClient
     // --- Игроку персонально ---
     Task PlayerQuestionEnded(PlayerQuestionResultDto result);
 }
+
+// 1. Новые DTO
+public record OptionAnswerCountDto(int OptionId, int Count);
+
+public record RejoinResult(bool Success, string? Error, RoomStatus Status, int TotalPlayers,
+    QuestionForPlayerDto? CurrentQuestion, bool AlreadyAnswered, PlayerQuestionResultDto? LastResult);
+
+public record QuestionClosure(HostQuestionResultDto ForHost,
+    Dictionary<string, PlayerQuestionResultDto> ForPlayers);   // ключ — connectionId
+
+public record DisconnectResult(string Code, bool WasHost, string? Nick, int TotalPlayers);
+
+// 2. HostQuestionResultDto: добавить поле
+List<OptionAnswerCountDto> AnswersPerOption   // «число ответов по каждому варианту»
+
+// 3. IRoomManager: добавить / изменить
+RejoinResult RejoinRoom(string code, string nick, string newConnectionId);
+(int Answered, int Total) GetAnswerCount(string code);
+QuestionClosure? CloseQuestion(string code);        // идемпотентно: при гонке таймера и «все ответили» второй вызов вернёт null
+List<LeaderboardEntryDto> EndGame(string code);     // было void, нужен итоговый рейтинг для GameEnded
+DisconnectResult? HandleDisconnect(string connectionId);   // было void, хабу нужно знать, кому слать PlayerLeft
+
+// 4. IQuizHubServer
+Task<RejoinResult> RejoinRoom(string roomCode, string nick);
+
+// 5. IQuizHubClient
+Task PlayerLeft(string nick, int totalPlayers);
+// PlayerJoined и PlayerLeft шлём всей группе room:{code}, а не только ведущему:
+// экран ожидания игрока показывает число игроков.
