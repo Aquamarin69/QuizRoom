@@ -1,0 +1,227 @@
+﻿.lobby-page {
+    min-height: 100vh;
+    background-color: #c6b7e2;
+    padding: 24px 36px 36px 36px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.lobby-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.brand-icon {
+    font-size: 32px;
+}
+
+.brand-word {
+    display: inline-flex;
+    align-items: center;
+}
+
+.brand-dark {
+    color: #111827;
+}
+
+.brand-accent {
+    color: #6d28d9;
+}
+
+.btn-back {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background-color: #f8f7fc;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(30, 27, 75, 0.08);
+    transition: background-color 0.15s ease;
+}
+
+    .btn-back:hover {
+        background-color: #ede8f5;
+    }
+
+.lobby-card {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 28px;
+    padding: 36px 44px;
+    box-shadow: 0 12px 32px rgba(30, 27, 75, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.room-code-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background-color: #f3effb;
+    border: 2px solid #d8cbed;
+    border-radius: 24px;
+    padding: 28px 24px;
+}
+
+.room-code-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #5b4b73;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.room-code-value {
+    font-size: 72px;
+    font-weight: 900;
+    color: #6d28d9;
+    letter-spacing: 0.16em;
+    line-height: 1;
+}
+
+.quiz-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #4b5563;
+}
+
+.lobby-error {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 14px;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.players-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.players-count {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.dev-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-dev {
+    padding: 8px 14px;
+    border: 1px solid #d8cbed;
+    border-radius: 10px;
+    background-color: #f8f7fc;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn-dev:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.players-empty {
+    flex: 1;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f7fc;
+    border: 2px dashed #d8cbed;
+    border-radius: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.players-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    align-content: start;
+    gap: 14px;
+}
+
+.player-chip {
+    background-color: #ede8f5;
+    color: #1f2937;
+    border: 2px solid #d8cbed;
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    word-break: break-word;
+}
+
+.lobby-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+}
+
+.btn-start-game {
+    padding: 18px 56px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 22px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(109, 40, 217, 0.3);
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+    .btn-start-game:hover:not(:disabled) {
+        background-color: #5b21b6;
+    }
+
+    .btn-start-game:disabled {
+        background-color: #c4b5fd;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+@media (max-width: 720px) {
+    .lobby-page {
+        padding: 16px;
+    }
+
+    .lobby-card {
+        padding: 24px 20px;
+    }
+
+    .room-code-value {
+        font-size: 48px;
+    }
+}

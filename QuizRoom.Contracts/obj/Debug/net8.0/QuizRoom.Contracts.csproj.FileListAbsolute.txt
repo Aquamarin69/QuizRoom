@@ -1,0 +1,12 @@
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\bin\Debug\net8.0\QuizRoom.Contracts.deps.json
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\bin\Debug\net8.0\QuizRoom.Contracts.dll
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\bin\Debug\net8.0\QuizRoom.Contracts.pdb
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.AssemblyInfoInputs.cache
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.AssemblyInfo.cs
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.csproj.CoreCompileInputs.cache
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.sourcelink.json
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.dll
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\refint\QuizRoom.Contracts.dll
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\QuizRoom.Contracts.pdb
+C:\Users\nazkp\source\repos\QuizRoom\QuizRoom.Contracts\obj\Debug\net8.0\ref\QuizRoom.Contracts.dll
