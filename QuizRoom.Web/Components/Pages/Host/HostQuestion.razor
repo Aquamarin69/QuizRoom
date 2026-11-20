@@ -1,0 +1,305 @@
+﻿@page "/host/quizzes/{QuizId:int}/play"
+@layout HostEmptyLayout
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject IQuizService QuizService
+@inject NavigationManager Navigation
+
+<PageTitle>Вопрос @(currentIndex + 1) — QuizRoom</PageTitle>
+
+<div class="question-page">
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="center-box">
+            <div class="error-banner" role="alert">@errorMessage</div>
+            <button type="button" class="btn-secondary" @onclick="GoToQuizzes">К списку викторин</button>
+        </div>
+    }
+    else if (currentQuestion is null)
+    {
+        <div class="center-box">
+            <p class="loading-text">Загрузка вопроса...</p>
+        </div>
+    }
+    else
+    {
+        <header class="question-topbar">
+            <div class="progress-badge">
+                Вопрос @(currentIndex + 1) из @questions.Count
+            </div>
+
+            <div class="timer-badge @(remainingSeconds <= 5 && !isQuestionEnded ? "timer-danger" : "")">
+                @(isQuestionEnded ? "Время вышло" : $"{remainingSeconds} сек")
+            </div>
+
+            <div class="answers-counter">
+                Ответили: <strong>@answeredCount</strong> из <strong>@totalPlayers</strong>
+            </div>
+
+            <div class="dev-controls">
+                <button type="button"
+                        class="btn-dev"
+                        @onclick="SimulatePlayerAnswer"
+                        disabled="@(isQuestionEnded || answeredCount >= totalPlayers)">
+                    + Ответ
+                </button>
+                <button type="button"
+                        class="btn-dev"
+                        @onclick="CloseCurrentQuestion"
+                        disabled="@isQuestionEnded">
+                    Завершить вопрос
+                </button>
+            </div>
+        </header>
+
+        <main class="question-stage">
+            <div class="question-card">
+                <h1 class="question-text">@currentQuestion.Text</h1>
+            </div>
+
+            <div class="options-grid">
+                @for (int i = 0; i < currentQuestion.Options.Count; i++)
+                {
+                    var option = currentQuestion.Options[i];
+                    int optionCount = answersPerOption.GetValueOrDefault(i, 0);
+                    int percent = totalPlayers > 0
+                    ? (int)Math.Round(100.0 * optionCount / totalPlayers)
+                    : 0;
+
+                    string cardModifier = "";
+                    if (isQuestionEnded)
+                    {
+                        cardModifier = option.IsCorrect ? "option-correct" : "option-wrong";
+                    }
+
+                    <div class="option-card option-color-@i @cardModifier">
+                        <div class="option-main">
+                            <span class="option-letter">@GetOptionLetter(i)</span>
+                            <span class="option-text">@option.Text</span>
+                        </div>
+
+                        @if (isQuestionEnded)
+                        {
+                            <div class="option-stats">
+                                @if (option.IsCorrect)
+                                {
+                                    <span class="correct-tag">Верный ответ</span>
+                                }
+                                <span class="option-count">@optionCount отв. (@percent%)</span>
+                            </div>
+                            <div class="option-bar-track">
+                                <div class="option-bar-fill" style="width: @(percent)%"></div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </main>
+
+        <footer class="question-footer">
+            @if (IsLastQuestion)
+            {
+                <button type="button"
+                        class="btn-primary-action"
+                        @onclick="EndGame"
+                        disabled="@(!isQuestionEnded)">
+                    Завершить игру
+                </button>
+            }
+            else
+            {
+                <button type="button"
+                        class="btn-secondary-action"
+                        @onclick="EndGame">
+                    Завершить игру
+                </button>
+
+                <button type="button"
+                        class="btn-primary-action"
+                        @onclick="NextQuestion"
+                        disabled="@(!isQuestionEnded)">
+                    Следующий вопрос
+                </button>
+            }
+        </footer>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int QuizId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "players")]
+    public int? PlayersQuery { get; set; }
+
+    private List<QuestionEditDto> questions = new();
+    private QuestionEditDto? currentQuestion;
+    private int currentIndex;
+    private int totalPlayers;
+
+    private DateTime startedAtUtc;
+    private int timeLimitSec;
+    private int remainingSeconds;
+
+    private int answeredCount;
+    private bool isQuestionEnded;
+    private readonly Dictionary<int, int> answersPerOption = new();
+
+    private string? errorMessage;
+    private PeriodicTimer? timer;
+    private CancellationTokenSource? timerCts;
+
+    private bool IsLastQuestion => questions.Count > 0 && currentIndex + 1 == questions.Count;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentHostId is null)
+        {
+            Navigation.NavigateTo("/host/auth");
+            return;
+        }
+
+        var quiz = await QuizService.GetQuizAsync(QuizId);
+        if (quiz is null || quiz.Questions.Count == 0)
+        {
+            errorMessage = "Викторина без вопросов";
+            return;
+        }
+
+        questions = quiz.Questions.OrderBy(q => q.OrderNum).ToList();
+        totalPlayers = PlayersQuery is > 0 ? PlayersQuery.Value : 5;
+
+        StartQuestion(0);
+        StartTimerLoop();
+    }
+
+    private void StartQuestion(int index)
+    {
+        currentIndex = index;
+        currentQuestion = questions[index];
+        timeLimitSec = currentQuestion.TimeLimitSec > 0 ? currentQuestion.TimeLimitSec : 30;
+        startedAtUtc = DateTime.UtcNow;
+        remainingSeconds = timeLimitSec;
+
+        answeredCount = 0;
+        isQuestionEnded = false;
+        answersPerOption.Clear();
+
+        for (int i = 0; i < currentQuestion.Options.Count; i++)
+        {
+            answersPerOption[i] = 0;
+        }
+    }
+
+    private void StartTimerLoop()
+    {
+        timerCts = new CancellationTokenSource();
+        timer = new PeriodicTimer(TimeSpan.FromMilliseconds(200));
+        var token = timerCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                while (await timer.WaitForNextTickAsync(token))
+                {
+                    if (isQuestionEnded || currentQuestion is null)
+                    {
+                        continue;
+                    }
+
+                    double elapsed = (DateTime.UtcNow - startedAtUtc).TotalSeconds;
+                    int updatedRemaining = Math.Max(0, (int)Math.Ceiling(timeLimitSec - elapsed));
+
+                    if (updatedRemaining != remainingSeconds)
+                    {
+                        remainingSeconds = updatedRemaining;
+                        await InvokeAsync(StateHasChanged);
+                    }
+
+                    if (remainingSeconds == 0 && !isQuestionEnded)
+                    {
+                        await InvokeAsync(() =>
+                        {
+                            CloseCurrentQuestion();
+                            StateHasChanged();
+                        });
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }, token);
+    }
+
+    private void SimulatePlayerAnswer()
+    {
+        if (isQuestionEnded || currentQuestion is null || answeredCount >= totalPlayers)
+        {
+            return;
+        }
+
+        int chosenIndex = Random.Shared.Next(0, currentQuestion.Options.Count);
+        answersPerOption[chosenIndex] = answersPerOption.GetValueOrDefault(chosenIndex, 0) + 1;
+        answeredCount++;
+
+        if (answeredCount >= totalPlayers)
+        {
+            CloseCurrentQuestion();
+        }
+    }
+
+    private void CloseCurrentQuestion()
+    {
+        if (isQuestionEnded)
+        {
+            return;
+        }
+
+        isQuestionEnded = true;
+        remainingSeconds = 0;
+    }
+
+    private void NextQuestion()
+    {
+        if (!isQuestionEnded || IsLastQuestion)
+        {
+            return;
+        }
+
+        StartQuestion(currentIndex + 1);
+    }
+
+    private void EndGame()
+    {
+        Navigation.NavigateTo($"/host/quizzes/{QuizId}/results?players={totalPlayers}");
+    }
+
+    private void GoToQuizzes()
+    {
+        Navigation.NavigateTo("/host/quizzes");
+    }
+
+    private static string GetOptionLetter(int index) => index switch
+    {
+        0 => "A",
+        1 => "B",
+        2 => "C",
+        3 => "D",
+        _ => (index + 1).ToString()
+    };
+
+    public async ValueTask DisposeAsync()
+    {
+        if (timerCts is not null)
+        {
+            await timerCts.CancelAsync();
+            timerCts.Dispose();
+        }
+
+        timer?.Dispose();
+    }
+}

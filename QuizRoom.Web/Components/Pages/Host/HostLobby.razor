@@ -147,6 +147,7 @@
         }
 
         startError = null;
+        Navigation.NavigateTo($"/host/quizzes/{QuizId}/play?players={players.Count}");
     }
 
     private void GoBack()

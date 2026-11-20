@@ -1,0 +1,310 @@
+﻿.question-page {
+    min-height: 100vh;
+    background-color: #c6b7e2;
+    padding: 24px 36px 32px 36px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.center-box {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.error-banner {
+    background-color: #fee2e2;
+    border: 2px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 16px;
+    padding: 18px 28px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.loading-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.question-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    background-color: #f8f7fc;
+    border-radius: 22px;
+    padding: 16px 28px;
+    box-shadow: 0 8px 24px rgba(30, 27, 75, 0.08);
+}
+
+.progress-badge {
+    font-size: 22px;
+    font-weight: 800;
+    color: #4c1d95;
+    background-color: #ede8f5;
+    padding: 10px 22px;
+    border-radius: 999px;
+}
+
+.timer-badge {
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffffff;
+    background-color: #6d28d9;
+    padding: 10px 30px;
+    border-radius: 999px;
+    min-width: 160px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.timer-danger {
+    background-color: #dc2626;
+}
+
+.answers-counter {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1f2937;
+    background-color: #ede8f5;
+    padding: 10px 22px;
+    border-radius: 999px;
+}
+
+.dev-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-dev {
+    padding: 8px 14px;
+    border: 1px solid #d8cbed;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn-dev:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+.question-stage {
+    flex: 1;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.question-card {
+    background-color: #ffffff;
+    border-radius: 28px;
+    padding: 40px 48px;
+    box-shadow: 0 12px 32px rgba(30, 27, 75, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 170px;
+}
+
+.question-text {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #111827;
+    text-align: center;
+    word-break: break-word;
+}
+
+.options-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.option-card {
+    background-color: #ffffff;
+    border: 4px solid #e2d9f3;
+    border-radius: 24px;
+    padding: 26px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 8px 20px rgba(30, 27, 75, 0.08);
+    transition: opacity 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.option-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.option-letter {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.option-color-1 .option-letter {
+    background-color: #2563eb;
+}
+
+.option-color-2 .option-letter {
+    background-color: #d97706;
+}
+
+.option-color-3 .option-letter {
+    background-color: #0d9488;
+}
+
+.option-text {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.option-card.option-correct {
+    background-color: #ecfdf5;
+    border-color: #10b981;
+}
+
+    .option-card.option-correct .option-letter {
+        background-color: #059669;
+    }
+
+.option-card.option-wrong {
+    opacity: 0.55;
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.option-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.correct-tag {
+    background-color: #10b981;
+    color: #ffffff;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.option-bar-track {
+    width: 100%;
+    height: 12px;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.option-bar-fill {
+    height: 100%;
+    background-color: #6d28d9;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.option-correct .option-bar-fill {
+    background-color: #10b981;
+}
+
+.question-footer {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.btn-primary-action {
+    padding: 16px 40px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 22px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(109, 40, 217, 0.3);
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+    .btn-primary-action:hover:not(:disabled) {
+        background-color: #5b21b6;
+    }
+
+    .btn-primary-action:disabled {
+        background-color: #a78bfa;
+        opacity: 0.55;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+.btn-secondary-action,
+.btn-secondary {
+    padding: 16px 32px;
+    background-color: #f8f7fc;
+    color: #374151;
+    border: 2px solid #d8cbed;
+    border-radius: 999px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+    .btn-secondary-action:hover,
+    .btn-secondary:hover {
+        background-color: #ede8f5;
+    }
+
+@media (max-width: 860px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .question-text {
+        font-size: 28px;
+    }
+
+    .option-text {
+        font-size: 22px;
+    }
+}
