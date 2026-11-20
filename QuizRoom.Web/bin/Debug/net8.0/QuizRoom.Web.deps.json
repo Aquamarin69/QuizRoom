@@ -16,10 +16,7 @@
       },
       "QuizRoom.Contracts/1.0.0": {
         "runtime": {
-          "QuizRoom.Contracts.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
+          "QuizRoom.Contracts.dll": {}
         }
       }
     }

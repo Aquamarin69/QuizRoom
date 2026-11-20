@@ -9,7 +9,6 @@
 <PageTitle>Редактор викторины — QuizRoom</PageTitle>
 
 <div class="editor-page">
-    @* Заголовок и ссылка возврата к списку викторин *@
     <div class="editor-header">
         <h1 class="editor-title">Редактор викторины</h1>
         <button type="button" class="link-back" @onclick="GoBack">← к списку</button>
@@ -21,7 +20,6 @@
     }
     else
     {
-        @* Блок редактирования названия викторины *@
         <section class="title-section">
             <label for="quiz-title-input" class="section-label">Название викторины</label>
 
@@ -55,7 +53,6 @@
             </div>
         </section>
 
-        @* Раздел списка вопросов викторины *@
         <section class="questions-section">
             <div class="questions-header">
                 <h2 class="section-label">Вопросы (@quiz.Questions.Count / 20)</h2>
@@ -76,7 +73,15 @@
                             <div class="question-item-top">
                                 <span class="question-num">@q.OrderNum.</span>
                                 <span class="question-text">@q.Text</span>
-                                <span class="question-time">время(с): <strong>@q.TimeLimitSec</strong></span>
+
+                                @if (q.TimeLimitSec <= 0)
+                                {
+                                    <span class="question-time unlimited-badge">∞ без ограничений</span>
+                                }
+                                else
+                                {
+                                    <span class="question-time">время(с): <strong>@q.TimeLimitSec</strong></span>
+                                }
 
                                 <div class="question-item-actions">
                                     <button type="button"
@@ -108,7 +113,6 @@
                 </div>
             }
 
-            @* Кнопка «Добавить вопрос» неактивна при 20 вопросах согласно ТЗ *@
             @if (!isQuestionFormOpen)
             {
                 <div class="add-question-bar">
@@ -126,7 +130,6 @@
             }
         </section>
 
-        @* Форма создания или редактирования вопроса *@
         @if (isQuestionFormOpen)
         {
             <section class="question-form-card">
@@ -134,7 +137,6 @@
                     @(editingQuestionId.HasValue ? "Редактирование вопроса" : "Новый вопрос")
                 </h3>
 
-                @* Вывод всех ошибок валидации строго из ValidationResult.Errors *@
                 @if (questionErrors.Count > 0)
                 {
                     <div class="validation-errors" role="alert">
@@ -155,18 +157,42 @@
                                placeholder="Введите текст вопроса" />
                     </div>
 
-                    <div class="form-field-time">
-                        <label for="q-time">время(с):</label>
-                        <input id="q-time"
-                               type="number"
-                               class="time-input"
-                               min="5"
-                               max="120"
-                               @bind="timeLimitSec" />
+                    <div class="form-field-time-box">
+                        <label>Ограничение по времени</label>
+                        <div class="time-control-row">
+                            <div class="time-segmented">
+                                <button type="button"
+                                        class="seg-btn @(!isUnlimitedTime ? "active" : "")"
+                                        @onclick="() => isUnlimitedTime = false">
+                                    Таймер
+                                </button>
+                                <button type="button"
+                                        class="seg-btn @(isUnlimitedTime ? "active" : "")"
+                                        @onclick="() => isUnlimitedTime = true">
+                                    Без времени
+                                </button>
+                            </div>
+
+                            @if (!isUnlimitedTime)
+                            {
+                                <div class="seconds-input-wrap">
+                                    <input id="q-time"
+                                           type="number"
+                                           class="time-input"
+                                           min="5"
+                                           max="120"
+                                           @bind="timeLimitSec" />
+                                    <span class="seconds-unit">сек</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="unlimited-pill">∞ Без ограничений</div>
+                            }
+                        </div>
                     </div>
                 </div>
 
-                @* Варианты ответа (от 2 до 4) с выбором единственного правильного *@
                 <div class="options-box">
                     <div class="options-header">
                         <span>Варианты ответа (отметьте правильный):</span>
@@ -192,7 +218,7 @@
                                 </button>
 
                                 <input type="text"
-                                       class="option-input"
+                                       class="option-input @(opt.IsCorrect ? "correct" : "")"
                                        @bind="opt.Text"
                                        placeholder="Вариант ответа @(index + 1)" />
 
@@ -228,35 +254,26 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Идентификатор редактируемой викторины из маршрута.
-    /// </summary>
     [Parameter]
     public int QuizId { get; set; }
 
-    // Загруженная модель викторины
     private QuizEditDto? quiz;
 
-    // Поле и состояние сохранения названия викторины
     private string quizTitle = string.Empty;
     private List<string> titleErrors = new();
     private bool titleSavedNotice;
 
-    // Состояние формы редактирования/добавления вопроса
     private bool isQuestionFormOpen;
     private int? editingQuestionId;
     private int editingOrderNum;
     private string questionText = string.Empty;
     private int timeLimitSec = 20;
+    private bool isUnlimitedTime;
     private List<EditableOption> optionModels = new();
     private List<string> questionErrors = new();
 
-    // Блокировка кнопок на время выполнения запроса
     private bool isBusy;
 
-    /// <summary>
-    /// Загружает данные викторины при открытии редактора.
-    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         if (AuthService.CurrentHostId is null)
@@ -268,9 +285,6 @@
         await LoadQuizAsync();
     }
 
-    /// <summary>
-    /// Получает актуальное состояние викторины из сервиса.
-    /// </summary>
     private async Task LoadQuizAsync()
     {
         quiz = await QuizService.GetQuizAsync(QuizId);
@@ -283,9 +297,6 @@
         quizTitle = quiz.Title;
     }
 
-    /// <summary>
-    /// Сохраняет изменённое название викторины с проверкой через RenameQuizAsync.
-    /// </summary>
     private async Task SaveTitleAsync()
     {
         titleErrors.Clear();
@@ -311,9 +322,6 @@
         }
     }
 
-    /// <summary>
-    /// Открывает форму добавления нового вопроса с двумя пустыми вариантами по умолчанию.
-    /// </summary>
     private void OpenNewQuestion()
     {
         if (quiz is null || quiz.Questions.Count >= 20)
@@ -323,6 +331,7 @@
         editingOrderNum = quiz.Questions.Count + 1;
         questionText = string.Empty;
         timeLimitSec = 20;
+        isUnlimitedTime = false;
         questionErrors.Clear();
         optionModels = new List<EditableOption>
         {
@@ -332,15 +341,23 @@
         isQuestionFormOpen = true;
     }
 
-    /// <summary>
-    /// Открывает форму редактирования выбранного вопроса, заполняя её текущими данными.
-    /// </summary>
     private void OpenEditQuestion(QuestionEditDto question)
     {
         editingQuestionId = question.Id;
         editingOrderNum = question.OrderNum;
         questionText = question.Text;
-        timeLimitSec = question.TimeLimitSec;
+
+        if (question.TimeLimitSec <= 0)
+        {
+            isUnlimitedTime = true;
+            timeLimitSec = 20;
+        }
+        else
+        {
+            isUnlimitedTime = false;
+            timeLimitSec = question.TimeLimitSec;
+        }
+
         questionErrors.Clear();
         optionModels = question.Options
             .Select(o => new EditableOption { Id = o.Id, Text = o.Text, IsCorrect = o.IsCorrect })
@@ -348,18 +365,12 @@
         isQuestionFormOpen = true;
     }
 
-    /// <summary>
-    /// Закрывает форму редактирования вопроса без сохранения.
-    /// </summary>
     private void CancelQuestionForm()
     {
         isQuestionFormOpen = false;
         questionErrors.Clear();
     }
 
-    /// <summary>
-    /// Добавляет новый вариант ответа (максимум 4 варианта).
-    /// </summary>
     private void AddOption()
     {
         if (optionModels.Count < 4)
@@ -368,9 +379,6 @@
         }
     }
 
-    /// <summary>
-    /// Удаляет вариант ответа по индексу (минимум 2 варианта).
-    /// </summary>
     private void RemoveOption(int index)
     {
         if (optionModels.Count <= 2 || index < 0 || index >= optionModels.Count)
@@ -379,9 +387,6 @@
         optionModels.RemoveAt(index);
     }
 
-    /// <summary>
-    /// Отмечает выбранный вариант как единственный правильный ответ.
-    /// </summary>
     private void SelectCorrectOption(int selectedIndex)
     {
         for (int i = 0; i < optionModels.Count; i++)
@@ -390,9 +395,6 @@
         }
     }
 
-    /// <summary>
-    /// Отправляет вопрос на валидацию и сохранение в IQuizService.
-    /// </summary>
     private async Task SaveQuestionAsync()
     {
         questionErrors.Clear();
@@ -404,11 +406,13 @@
                 .Select(o => new OptionEditDto(o.Id, o.Text, o.IsCorrect))
                 .ToList();
 
+            int finalTimeLimit = isUnlimitedTime ? 0 : timeLimitSec;
+
             var questionDto = new QuestionEditDto(
                 editingQuestionId,
                 editingOrderNum,
                 questionText,
-                timeLimitSec,
+                finalTimeLimit,
                 optionsDto);
 
             ValidationResult result = await QuizService.SaveQuestionAsync(QuizId, questionDto);
@@ -420,7 +424,6 @@
             }
             else
             {
-                // Выводим все ошибки валидации из сервиса без изменений
                 questionErrors = result.Errors;
             }
         }
@@ -430,9 +433,6 @@
         }
     }
 
-    /// <summary>
-    /// Удаляет вопрос из викторины и обновляет список вопросов.
-    /// </summary>
     private async Task DeleteQuestionAsync(int questionId)
     {
         isBusy = true;
@@ -452,17 +452,11 @@
         }
     }
 
-    /// <summary>
-    /// Возвращает ведущего к списку викторин.
-    /// </summary>
     private void GoBack()
     {
         Navigation.NavigateTo("/host/quizzes");
     }
 
-    /// <summary>
-    /// Вспомогательная изменяемая модель варианта ответа для привязки в форме.
-    /// </summary>
     private sealed class EditableOption
     {
         public int? Id { get; set; }

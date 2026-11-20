@@ -1,5 +1,4 @@
-﻿/* Заголовок редактора и ссылка возврата «← к списку» */
-.editor-header {
+﻿.editor-header {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -37,7 +36,6 @@
     color: #111827;
 }
 
-/* Блок редактирования названия викторины */
 .title-section {
     margin-bottom: 28px;
 }
@@ -56,6 +54,7 @@
     border-radius: 14px;
     font-size: 15px;
     color: #1f2937;
+    background-color: #ffffff;
     outline: none;
     transition: border-color 0.15s ease;
 }
@@ -64,7 +63,6 @@
         border-color: #6d28d9;
     }
 
-/* Уведомления и ошибки валидации */
 .validation-errors {
     background-color: #fee2e2;
     border: 1px solid #fca5a5;
@@ -87,7 +85,6 @@
     font-weight: 600;
 }
 
-/* Список добавленных вопросов */
 .questions-section {
     margin-bottom: 24px;
 }
@@ -147,6 +144,15 @@
     color: #6b7280;
 }
 
+.unlimited-badge {
+    background-color: #ede8f5;
+    color: #6d28d9;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
 .question-item-actions {
     display: flex;
     gap: 8px;
@@ -171,7 +177,6 @@
     color: #1f2937;
 }
 
-/* Превью вариантов ответа в списке вопросов */
 .question-options-preview {
     list-style: none;
     margin: 12px 0 0 42px;
@@ -194,7 +199,7 @@
 
     .preview-option.correct {
         font-weight: 700;
-        color: #6d28d9;
+        color: #15803d;
     }
 
 .radio-dot {
@@ -206,10 +211,9 @@
 }
 
     .radio-dot.checked {
-        background-color: #6d28d9;
+        background-color: #16a34a;
     }
 
-/* Панель кнопки «Добавить вопрос» */
 .add-question-bar {
     margin-top: 18px;
     display: flex;
@@ -223,7 +227,6 @@
     color: #6b7280;
 }
 
-/* Карточка формы редактирования/создания вопроса */
 .question-form-card {
     background-color: #f5f2fb;
     border: 2px solid #c6b7e2;
@@ -255,26 +258,69 @@
 }
 
     .form-field-grow label,
-    .form-field-time label {
+    .form-field-time-box label {
         font-size: 14px;
         font-weight: 700;
         color: #374151;
     }
 
-.form-field-time {
+.form-field-time-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.time-control-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background-color: #ffffff;
+    border: 2px solid #d8cbed;
+    border-radius: 14px;
+    padding: 4px 8px 4px 4px;
+    height: 46px;
+}
+
+.time-segmented {
+    display: inline-flex;
+    background-color: #ede8f5;
+    border-radius: 10px;
+    padding: 2px;
+    gap: 2px;
+}
+
+.seg-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+    .seg-btn.active {
+        background-color: #6d28d9;
+        color: #ffffff;
+    }
+
+.seconds-input-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .time-input {
-    width: 76px;
-    padding: 10px 12px;
-    border: 2px solid #d8cbed;
-    border-radius: 12px;
+    width: 62px;
+    padding: 5px 8px;
+    border: 1px solid #d8cbed;
+    border-radius: 8px;
     font-size: 15px;
     font-weight: 700;
     text-align: center;
+    color: #1f2937;
     outline: none;
 }
 
@@ -282,7 +328,23 @@
         border-color: #6d28d9;
     }
 
-/* Блок вариантов ответа (2–4 шт.) */
+.seconds-unit {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    padding-right: 4px;
+}
+
+.unlimited-pill {
+    padding: 5px 12px;
+    background-color: #f3e8ff;
+    color: #6d28d9;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .options-box {
     background-color: #ffffff;
     border: 2px solid #d8cbed;
@@ -338,12 +400,12 @@
     background-color: #ede8f5;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
     .radio-select.selected {
-        background-color: #6d28d9;
-        border-color: #6d28d9;
+        background-color: #16a34a;
+        border-color: #16a34a;
     }
 
 .option-input {
@@ -353,10 +415,16 @@
     border-radius: 10px;
     font-size: 14px;
     outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
     .option-input:focus {
         border-color: #6d28d9;
+    }
+
+    .option-input.correct {
+        border-color: #16a34a;
+        background-color: #f0fdf4;
     }
 
 .btn-remove-option {
@@ -375,7 +443,6 @@
         cursor: not-allowed;
     }
 
-/* Нижние кнопки формы */
 .form-footer-actions {
     margin-top: 18px;
     display: flex;
