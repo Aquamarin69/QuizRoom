@@ -1,5 +1,4 @@
-﻿/* Основной лавандовый фон экрана авторизации как на макете */
-.auth-page {
+﻿.auth-page {
     min-height: 100vh;
     background-color: #c6b7e2;
     display: flex;
@@ -9,7 +8,6 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Двухколоночная сетка: приветствие слева и карточка справа */
 .auth-container {
     width: 100%;
     max-width: 1040px;
@@ -19,23 +17,32 @@
     gap: 48px;
 }
 
-/* Левая колонка */
 .auth-promo {
     flex: 1;
     max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .brand-logo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 800;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 .brand-icon {
-    font-size: 32px;
+    font-size: 34px;
+}
+
+.brand-name {
+    display: inline-flex;
+    align-items: center;
 }
 
 .brand-dark {
@@ -47,7 +54,7 @@
 }
 
 .promo-title {
-    font-size: 42px;
+    font-size: 40px;
     font-weight: 800;
     line-height: 1.15;
     color: #111827;
@@ -55,24 +62,38 @@
 }
 
 .promo-subtitle {
+    width: 100%;
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 1.55;
     color: #4b5563;
     margin: 0 0 32px 0;
+    text-align: justify;
 }
 
 .promo-trophy {
+    width: 100%;
     display: flex;
+    align-items: center;
     justify-content: center;
-    max-width: 240px;
+}
+
+.trophy-badge {
+    width: 196px;
+    height: 196px;
+    border-radius: 50%;
+    background-color: rgba(248, 247, 252, 0.45);
+    border: 2px solid rgba(109, 40, 217, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 28px rgba(30, 27, 75, 0.1);
 }
 
 .trophy-svg {
-    width: 170px;
-    height: 170px;
+    width: 132px;
+    height: 132px;
 }
 
-/* Правая белая карточка формы */
 .auth-card {
     width: 100%;
     max-width: 440px;
@@ -82,7 +103,6 @@
     box-shadow: 0 12px 30px rgba(30, 27, 75, 0.14);
 }
 
-/* Вкладки Вход / Регистрация с нижней полосой */
 .auth-tabs {
     display: flex;
     border-bottom: 2px solid #e2d9f3;
@@ -108,7 +128,6 @@
         border-bottom-color: #6d28d9;
     }
 
-/* Плашка вывода ошибки из AuthResult.Error */
 .auth-error {
     background-color: #fee2e2;
     border: 1px solid #fca5a5;
@@ -120,7 +139,6 @@
     font-weight: 600;
 }
 
-/* Форма */
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -169,15 +187,21 @@
 .toggle-password {
     position: absolute;
     right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
     color: #5b516e;
     padding: 4px;
+    transition: color 0.15s ease;
 }
 
-/* Фиолетовая кнопка-капсула */
+    .toggle-password:hover {
+        color: #6d28d9;
+    }
+
 .btn-primary-pill {
     margin-top: 8px;
     padding: 14px 24px;
@@ -201,7 +225,6 @@
         cursor: not-allowed;
     }
 
-/* Нижняя ссылка переключения */
 .auth-footer {
     margin-top: 20px;
     text-align: center;
@@ -232,10 +255,5 @@
 
     .promo-title {
         font-size: 32px;
-        text-align: center;
-    }
-
-    .promo-subtitle {
-        text-align: center;
     }
 }
