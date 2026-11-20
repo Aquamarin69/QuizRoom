@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "P2nP+JiGv6/VFPEJkAA8F1g2AgieMdFb0LXUlQ/uY0M=",
+  "Hash": "Sx/cGeqrEoGR0cEXRGKfmFvo08Q44g2M1X58jsSJiNc=",
   "Source": "QuizRoom.Web",
   "BasePath": "_content/QuizRoom.Web",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "QuizRoom.Web\\wwwroot",
       "Source": "QuizRoom.Web",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\",
       "BasePath": "_content/QuizRoom.Web",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\QuizRoom.Web.styles.css",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\QuizRoom.Web.styles.css",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "QuizRoom.Web.styles.css",
       "AssetKind": "All",
@@ -33,13 +33,13 @@
       "AssetTraitValue": "ApplicationBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\QuizRoom.Web.styles.css"
+      "OriginalItemSpec": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\bundle\\QuizRoom.Web.styles.css"
     },
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\QuizRoom.Web.bundle.scp.css",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\QuizRoom.Web.bundle.scp.css",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "QuizRoom.Web.bundle.scp.css",
       "AssetKind": "All",
@@ -52,13 +52,13 @@
       "AssetTraitValue": "ProjectBundle",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\QuizRoom.Web.bundle.scp.css"
+      "OriginalItemSpec": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\QuizRoom.Web.bundle.scp.css"
     },
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\app.css",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\app.css",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "app.css",
       "AssetKind": "All",
@@ -74,10 +74,10 @@
       "OriginalItemSpec": "wwwroot\\app.css"
     },
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\bootstrap\\bootstrap.min.css",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "bootstrap/bootstrap.min.css",
       "AssetKind": "All",
@@ -93,10 +93,10 @@
       "OriginalItemSpec": "wwwroot\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\bootstrap\\bootstrap.min.css.map",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "bootstrap/bootstrap.min.css.map",
       "AssetKind": "All",
@@ -112,10 +112,10 @@
       "OriginalItemSpec": "wwwroot\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Identity": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\favicon.png",
+      "Identity": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\favicon.png",
       "SourceId": "QuizRoom.Web",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nazkp\\source\\repos\\QuizRoom\\QuizRoom.Web\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\1249099\\source\\repos\\QuizRoom\\Quizroom.Web\\wwwroot\\",
       "BasePath": "_content/QuizRoom.Web",
       "RelativePath": "favicon.png",
       "AssetKind": "All",

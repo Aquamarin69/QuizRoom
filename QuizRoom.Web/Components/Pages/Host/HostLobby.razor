@@ -1,0 +1,156 @@
+﻿@page "/host/quizzes/{QuizId:int}/launch"
+@layout HostEmptyLayout
+@rendermode InteractiveServer
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject IQuizService QuizService
+@inject NavigationManager Navigation
+
+<PageTitle>Лобби @roomCode — QuizRoom</PageTitle>
+
+<div class="lobby-page">
+    <header class="lobby-topbar">
+        <div class="brand-logo">
+            <span class="brand-icon" aria-hidden="true">🎓</span>
+            <span class="brand-word"><span class="brand-dark">Quiz</span><span class="brand-accent">Room</span></span>
+        </div>
+
+        <button type="button" class="btn-back" @onclick="GoBack">
+            ← К списку викторин
+        </button>
+    </header>
+
+    <main class="lobby-card">
+        @if (!string.IsNullOrEmpty(loadError))
+        {
+            <div class="lobby-error" role="alert">
+                @loadError
+            </div>
+        }
+        else
+        {
+            <div class="room-code-section">
+                <span class="room-code-label">Код комнаты для подключения</span>
+                <div class="room-code-value">@roomCode</div>
+                @if (!string.IsNullOrEmpty(quizTitle))
+                {
+                    <span class="quiz-name">@quizTitle</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(startError))
+            {
+                <div class="lobby-error" role="alert">
+                    @startError
+                </div>
+            }
+
+            <div class="players-header">
+                <h2 class="players-count">Игроков: @players.Count</h2>
+
+                <div class="dev-controls">
+                    <button type="button" class="btn-dev" @onclick="SimulateJoin">+ Игрок</button>
+                    <button type="button" class="btn-dev" @onclick="SimulateLeave" disabled="@(players.Count == 0)">− Игрок</button>
+                </div>
+            </div>
+
+            @if (players.Count == 0)
+            {
+                <div class="players-empty">
+                    Ожидание подключения игроков...
+                </div>
+            }
+            else
+            {
+                <div class="players-grid">
+                    @foreach (var nick in players)
+                    {
+                        <div class="player-chip">@nick</div>
+                    }
+                </div>
+            }
+
+            <div class="lobby-actions">
+                <button type="button"
+                        class="btn-start-game"
+                        @onclick="StartGame"
+                        disabled="@(players.Count == 0)">
+                    Начать игру
+                </button>
+            </div>
+        }
+    </main>
+</div>
+
+@code {
+    [Parameter]
+    public int QuizId { get; set; }
+
+    private readonly List<string> players = new();
+    private readonly string[] sampleNicks = ["Алексей", "Мария", "Дмитрий", "София", "Иван", "Анна", "Максим", "Елена"];
+    private int nextNickIndex;
+
+    private string roomCode = string.Empty;
+    private string quizTitle = string.Empty;
+    private string? loadError;
+    private string? startError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentHostId is null)
+        {
+            Navigation.NavigateTo("/host/auth");
+            return;
+        }
+
+        var quiz = await QuizService.GetQuizAsync(QuizId);
+        if (quiz is null || quiz.Questions.Count == 0)
+        {
+            loadError = "Викторина без вопросов";
+            return;
+        }
+
+        quizTitle = quiz.Title;
+        roomCode = Random.Shared.Next(100000, 999999).ToString();
+    }
+
+    private void SimulateJoin()
+    {
+        if (players.Count >= 30)
+        {
+            return;
+        }
+
+        string baseNick = sampleNicks[nextNickIndex % sampleNicks.Length];
+        int suffix = nextNickIndex / sampleNicks.Length;
+        string nick = suffix == 0 ? baseNick : $"{baseNick} {suffix + 1}";
+        nextNickIndex++;
+
+        players.Add(nick);
+        startError = null;
+    }
+
+    private void SimulateLeave()
+    {
+        if (players.Count > 0)
+        {
+            players.RemoveAt(players.Count - 1);
+        }
+    }
+
+    private void StartGame()
+    {
+        if (players.Count == 0)
+        {
+            startError = "Невозможно начать игру: нет подключённых игроков.";
+            return;
+        }
+
+        startError = null;
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/host/quizzes");
+    }
+}

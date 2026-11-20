@@ -1,0 +1,235 @@
+﻿/* Верхняя строка с заголовком и кнопкой «Создать викторину» */
+.list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.list-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.btn-create-main {
+    padding: 12px 26px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);
+    transition: background-color 0.15s ease;
+}
+
+.btn-create-main:hover {
+    background-color: #5b21b6;
+}
+
+/* Блок создания новой викторины */
+.create-box {
+    background-color: #f3effb;
+    border: 2px solid #d8cbed;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+}
+
+.create-box-title {
+    margin: 0 0 12px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.validation-errors {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.create-form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.create-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 16px;
+    border: 2px solid #c6b7e2;
+    border-radius: 999px;
+    font-size: 15px;
+    outline: none;
+}
+
+.create-input:focus {
+    border-color: #6d28d9;
+}
+
+.btn-save {
+    padding: 10px 22px;
+    background-color: #6d28d9;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-save:hover:not(:disabled) {
+    background-color: #5b21b6;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    background-color: #e2d9f3;
+    color: #374151;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Пустое состояние списка */
+.empty-state-box {
+    background-color: #f5f2fb;
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.empty-state-text {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Список карточек викторин в стиле макета */
+.quiz-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quiz-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background-color: #ede8f5;
+    border-radius: 20px;
+    padding: 14px 20px;
+    box-shadow: 0 3px 8px rgba(30, 27, 75, 0.08);
+}
+
+.quiz-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.quiz-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background-color: #9b72cf;
+    flex-shrink: 0;
+}
+
+.quiz-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quiz-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #5b4b73;
+}
+
+.quiz-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: #7c6f91;
+}
+
+/* Кнопки действий справа на карточке */
+.quiz-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn-action:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn-launch {
+    background-color: #b794f4;
+    color: #1f2937;
+}
+
+.btn-edit {
+    background-color: #9f7aea;
+    color: #1f2937;
+}
+
+.btn-delete {
+    background-color: #f87171;
+    color: #1f2937;
+}
+
+.confirm-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b91c1c;
+}
+
+.btn-delete-confirm {
+    background-color: #dc2626;
+    color: #ffffff;
+}
+
+.btn-cancel-small {
+    background-color: #d1d5db;
+    color: #1f2937;
+}
+
+@media (max-width: 680px) {
+    .quiz-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .quiz-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
