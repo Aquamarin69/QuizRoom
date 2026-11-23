@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuizRoom.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1085f2974d097c0d1232d6891a0f2733306a7003")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b393dab8238fdd015fea80110ec64c1eecabaa7")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuizRoom.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuizRoom.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

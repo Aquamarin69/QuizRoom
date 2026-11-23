@@ -1,0 +1,238 @@
+﻿@page "/host/quizzes/{QuizId:int}/results"
+@layout HostEmptyLayout
+@rendermode InteractiveServer
+@using QuizRoom.Contracts
+@inject IAuthService AuthService
+@inject IQuizService QuizService
+@inject NavigationManager Navigation
+
+<PageTitle>Итоги игры — QuizRoom</PageTitle>
+
+<div class="results-page">
+    <header class="results-topbar">
+        <div class="brand-logo">
+            <span class="brand-icon" aria-hidden="true">🎓</span>
+            <span class="brand-word"><span class="brand-dark">Quiz</span><span class="brand-accent">Room</span></span>
+        </div>
+
+        <div class="topbar-right">
+            <div class="dev-controls">
+                <button type="button" class="btn-dev" @onclick="LoadNormalScenario">Обычный</button>
+                <button type="button" class="btn-dev" @onclick="LoadTieScenario">Ничья (1, 2, 2, 4)</button>
+                <button type="button" class="btn-dev" @onclick="LoadSinglePlayerScenario">1 игрок</button>
+            </div>
+
+            <button type="button" class="btn-back" @onclick="GoToQuizzes">
+                ← К списку викторин
+            </button>
+        </div>
+    </header>
+
+    <main class="results-card">
+        <div class="results-header">
+            <h1 class="results-title">Итоги викторины</h1>
+            @if (!string.IsNullOrEmpty(quizTitle))
+            {
+                <p class="quiz-name">@quizTitle</p>
+            }
+        </div>
+
+        @if (leaderboard.Count == 0)
+        {
+            <div class="results-empty">
+                Нет данных для отображения рейтинга.
+            </div>
+        }
+        else
+        {
+            <section class="podium-section">
+                @if (secondPlace.Count > 0)
+                {
+                    <div class="podium-column podium-second">
+                        <div class="podium-players">
+                            @foreach (var entry in secondPlace)
+                            {
+                                <div class="podium-nick">@entry.Nick</div>
+                            }
+                            <div class="podium-score">@secondPlace[0].Score очк.</div>
+                        </div>
+                        <div class="podium-pedestal pedestal-second">2</div>
+                    </div>
+                }
+
+                @if (firstPlace.Count > 0)
+                {
+                    <div class="podium-column podium-first">
+                        <div class="podium-crown" aria-hidden="true">🏆</div>
+                        <div class="podium-players">
+                            @foreach (var entry in firstPlace)
+                            {
+                                <div class="podium-nick">@entry.Nick</div>
+                            }
+                            <div class="podium-score">@firstPlace[0].Score очк.</div>
+                        </div>
+                        <div class="podium-pedestal pedestal-first">1</div>
+                    </div>
+                }
+
+                @if (thirdPlace.Count > 0)
+                {
+                    <div class="podium-column podium-third">
+                        <div class="podium-players">
+                            @foreach (var entry in thirdPlace)
+                            {
+                                <div class="podium-nick">@entry.Nick</div>
+                            }
+                            <div class="podium-score">@thirdPlace[0].Score очк.</div>
+                        </div>
+                        <div class="podium-pedestal pedestal-third">3</div>
+                    </div>
+                }
+            </section>
+
+            <section class="leaderboard-section">
+                <h2 class="leaderboard-title">Общий рейтинг</h2>
+
+                <div class="leaderboard-list">
+                    @foreach (var entry in leaderboard)
+                    {
+                        <div class="leaderboard-row @GetRankRowClass(entry.Rank)">
+                            <div class="row-rank">@entry.Rank</div>
+                            <div class="row-nick">@entry.Nick</div>
+                            <div class="row-score">@entry.Score очк.</div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        <div class="results-actions">
+            <button type="button" class="btn-finish" @onclick="GoToQuizzes">
+                К списку викторин
+            </button>
+        </div>
+    </main>
+</div>
+
+@code {
+    [Parameter]
+    public int QuizId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "players")]
+    public int? PlayersQuery { get; set; }
+
+    private string quizTitle = string.Empty;
+    private List<LeaderboardEntryDto> leaderboard = new();
+    private List<LeaderboardEntryDto> firstPlace = new();
+    private List<LeaderboardEntryDto> secondPlace = new();
+    private List<LeaderboardEntryDto> thirdPlace = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentHostId is null)
+        {
+            Navigation.NavigateTo("/host/auth");
+            return;
+        }
+
+        var quiz = await QuizService.GetQuizAsync(QuizId);
+        if (quiz is not null)
+        {
+            quizTitle = quiz.Title;
+        }
+
+        if (PlayersQuery == 1)
+        {
+            LoadSinglePlayerScenario();
+        }
+        else
+        {
+            LoadNormalScenario();
+        }
+    }
+
+    private void LoadNormalScenario()
+    {
+        var entries = new List<LeaderboardEntryDto>
+        {
+            new LeaderboardEntryDto(1, "Алексей", 2850),
+            new LeaderboardEntryDto(2, "София", 2420),
+            new LeaderboardEntryDto(3, "Дмитрий", 1980),
+            new LeaderboardEntryDto(4, "Иван", 1640),
+            new LeaderboardEntryDto(5, "Мария", 1210)
+        };
+
+        ApplyLeaderboard(entries);
+    }
+
+    private void LoadTieScenario()
+    {
+        var entries = new List<LeaderboardEntryDto>
+        {
+            new LeaderboardEntryDto(1, "Алексей", 2900),
+            new LeaderboardEntryDto(2, "София", 2400),
+            new LeaderboardEntryDto(2, "Дмитрий", 2400),
+            new LeaderboardEntryDto(4, "Иван", 1550),
+            new LeaderboardEntryDto(5, "Анна", 980)
+        };
+
+        ApplyLeaderboard(entries);
+    }
+
+    private void LoadSinglePlayerScenario()
+    {
+        var entries = new List<LeaderboardEntryDto>
+        {
+            new LeaderboardEntryDto(1, "Алексей", 2750)
+        };
+
+        ApplyLeaderboard(entries);
+    }
+
+    private void ApplyLeaderboard(List<LeaderboardEntryDto> entries)
+    {
+        leaderboard = entries;
+        firstPlace = new List<LeaderboardEntryDto>();
+        secondPlace = new List<LeaderboardEntryDto>();
+        thirdPlace = new List<LeaderboardEntryDto>();
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            var entry = entries[i];
+            if (entry.Rank == 1)
+            {
+                firstPlace.Add(entry);
+            }
+            else if (entry.Rank == 2)
+            {
+                secondPlace.Add(entry);
+            }
+            else if (entry.Rank == 3)
+            {
+                thirdPlace.Add(entry);
+            }
+        }
+    }
+
+    private string GetRankRowClass(int rank)
+    {
+        if (rank == 1)
+        {
+            return "row-first";
+        }
+        if (rank == 2)
+        {
+            return "row-second";
+        }
+        if (rank == 3)
+        {
+            return "row-third";
+        }
+        return string.Empty;
+    }
+
+    private void GoToQuizzes()
+    {
+        Navigation.NavigateTo("/host/quizzes");
+    }
+}
