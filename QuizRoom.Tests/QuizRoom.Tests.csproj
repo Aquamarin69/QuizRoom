@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QuizRoom.Contracts\QuizRoom.Contracts.csproj" />
+    <ProjectReference Include="..\QuizRoom.Web\QuizRoom.Web.csproj" />
   </ItemGroup>
 
 </Project>
