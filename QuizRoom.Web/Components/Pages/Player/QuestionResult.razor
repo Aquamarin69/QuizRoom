@@ -1,6 +1,7 @@
 
 @page "/player/question-result"
 @layout PlayerLayout
+@using QuizRoom.Web.Services
 
 <PageTitle>Итоги викторины — QuizRoom</PageTitle>
 
@@ -30,14 +31,24 @@
                 CurrentPlayerNick="CurrentPlayerNick" />
         </div>
 
-        <a href="/" class="return-button">
-            Вернуться на главную
-        </a>
+        <a href="/player/join" class="return-button">Вернуться к игре</a>
 
     </section>
 </div>
 
 @code {
+    protected override void OnInitialized()
+    {
+        var result = FakeGameConnection.Shared.CurrentPlayerResult;
+
+        if (result is not null)
+        {
+            TotalScore = result.TotalScore;
+            CurrentPlayerNick = FakeGameConnection.Shared.CurrentNickname;
+            FinalLeaderboard = result.TopLeaderboard;
+        }
+    }
+
     [Parameter]
     public List<LeaderboardEntryDto> FinalLeaderboard { get; set; } = new();
 
@@ -48,6 +59,9 @@
     public int TotalScore { get; set; } = 0;
 
     private int PlayerRank =>
-        FinalLeaderboard.FindIndex(
-            x => x.Nick == CurrentPlayerNick) + 1;
+    FinalLeaderboard.FirstOrDefault(
+        x => string.Equals(
+            x.Nick,
+            CurrentPlayerNick,
+            StringComparison.OrdinalIgnoreCase))?.Rank ?? 0;
 }

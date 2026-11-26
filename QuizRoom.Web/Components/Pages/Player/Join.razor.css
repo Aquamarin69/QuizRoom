@@ -295,4 +295,17 @@
     .waiting-indicator span {
         animation: none;
     }
+
+    .connection-warning {
+        width: 100%;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        border: 1px solid #f0b44d;
+        border-radius: 12px;
+        background: #fff4df;
+        color: #8a5700;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+    }
 }

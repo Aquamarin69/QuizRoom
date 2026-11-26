@@ -1,8 +1,19 @@
-
 @page "/player/join"
 @layout PlayerLayout
+@using QuizRoom.Web.Services
+@inject NavigationManager Navigation
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <PageTitle>Подключение к игре — QuizRoom</PageTitle>
+
+@if (!isConnectionAvailable)
+{
+    <div class="connection-warning">
+        Соединение потеряно. Ожидаем восстановления...
+    </div>
+}
 
 <div class="join-page">
     @if (!isJoined)
@@ -23,7 +34,8 @@
                            maxlength="10"
                            placeholder="Например, 123456"
                            @bind="roomCode"
-                           @bind:event="oninput" />
+                           @bind:event="oninput"
+                           disabled="@isConnecting" />
                 </div>
 
                 <div class="form-group">
@@ -33,7 +45,8 @@
                            maxlength="20"
                            placeholder="Как тебя называть?"
                            @bind="nickname"
-                           @bind:event="oninput" />
+                           @bind:event="oninput"
+                           disabled="@isConnecting" />
                     <span class="field-hint">От 2 до 20 символов</span>
                 </div>
 
@@ -44,8 +57,10 @@
                     </div>
                 }
 
-                <button class="join-button" @onclick="JoinGame">
-                    Присоединиться
+                <button class="join-button"
+                        @onclick="JoinGame"
+                        disabled="@isConnecting">
+                    @(isConnecting ? "Подключение..." : "Присоединиться")
                 </button>
             </div>
 
@@ -81,6 +96,10 @@
             </div>
 
             <p class="waiting-hint">
+                Участников в комнате: @totalPlayers
+            </p>
+
+            <p class="waiting-hint">
                 Ожидай, пока ведущий начнёт викторину
             </p>
         </section>
@@ -88,18 +107,89 @@
 </div>
 
 @code {
+    private IGameConnection GameConnection => FakeGameConnection.Shared;
     private string roomCode = "";
     private string nickname = "";
     private string? errorMessage;
+
     private bool isJoined;
+    private bool isConnecting;
+
+    private bool isConnectionAvailable = true;
+    private int totalPlayers = 0;
+
+    protected override void OnInitialized()
+    {
+        GameConnection.PlayerJoined += OnPlayerJoined;
+        GameConnection.ConnectionStateChanged += OnConnectionStateChanged;
+        GameConnection.QuestionStarted += OnQuestionStarted;
+    }
+
+    private void OnConnectionStateChanged(bool connected)
+    {
+        _ = InvokeAsync(() =>
+        {
+            isConnectionAvailable = connected;
+            StateHasChanged();
+        });
+    }
+
+    private void OnPlayerJoined(string nick, int count)
+    {
+        _ = InvokeAsync(() =>
+        {
+            totalPlayers = count;
+            StateHasChanged();
+        });
+    }
+
+    private void OnQuestionStarted(QuizRoom.Contracts.QuestionForPlayerDto question)
+    {
+        _ = InvokeAsync(() =>
+        {
+            Navigation.NavigateTo("/player/question");
+        });
+    }
+
+    public void Dispose()
+    {
+        GameConnection.PlayerJoined -= OnPlayerJoined;
+        GameConnection.ConnectionStateChanged -= OnConnectionStateChanged;
+        GameConnection.QuestionStarted -= OnQuestionStarted;
+    }
 
     private string nicknameInitial =>
         string.IsNullOrWhiteSpace(nickname)
             ? "?"
             : nickname.Trim()[0].ToString().ToUpper();
 
-    private void JoinGame()
+    // Восстанавливаем данные игрока из sessionStorage.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            roomCode = await JSRuntime.InvokeAsync<string>(
+                "sessionStorage.getItem", "roomCode") ?? "";
+
+            nickname = await JSRuntime.InvokeAsync<string>(
+                "sessionStorage.getItem", "nickname") ?? "";
+
+            if (!string.IsNullOrWhiteSpace(roomCode) &&
+                !string.IsNullOrWhiteSpace(nickname))
+            {
+                FakeGameConnection.Shared.RestorePlayerSession(roomCode, nickname);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    // Подключение игрока к игровой комнате
+    private async Task JoinGame()
+    {
+        if (isConnecting)
+            return;
+
         errorMessage = null;
 
         roomCode = roomCode.Trim();
@@ -118,6 +208,32 @@
             return;
         }
 
-        errorMessage = "Подключение к комнате пока не настроено. Дождись подключения игрового сервиса.";
+        isConnecting = true;
+
+        try
+        {
+            var result = await GameConnection.JoinRoomAsync(
+                roomCode, nickname);
+
+            if (!result.Success)
+            {
+                errorMessage = result.Error ?? "Не удалось подключиться к комнате";
+                return;
+            }
+
+            isJoined = true;
+
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "roomCode", roomCode);
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "nickname", nickname);
+
+        }
+        catch (Exception)
+        {
+            errorMessage = "Не удалось связаться с игровым сервером. Попробуй ещё раз.";
+        }
+        finally
+        {
+            isConnecting = false;
+        }
     }
 }

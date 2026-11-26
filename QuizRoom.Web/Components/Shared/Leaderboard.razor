@@ -18,7 +18,7 @@
     else
     {
         <div class="leaderboard-list">
-            @foreach (var entry in Entries.OrderBy(entry => entry.Rank))
+            @foreach (var entry in DisplayEntries)
             {
                 <div @key="entry.Rank"
                      class="leaderboard-item @(GetPlaceClass(entry.Rank)) @(IsCurrentPlayer(entry.Nick) ? "current-player" : "")">
@@ -59,6 +59,26 @@
     // Увеличенный режим для проектора.
     [Parameter]
     public bool IsProjector { get; set; }
+
+    // Показываем первые пять мест и текущего игрока, если он ниже пятого места.
+    private List<LeaderboardEntryDto> DisplayEntries
+    {
+        get
+        {
+            var ordered = Entries.OrderBy(entry => entry.Rank).ToList();
+            var result = ordered.Take(5).ToList();
+
+            var currentPlayer = ordered.FirstOrDefault(entry => IsCurrentPlayer(entry.Nick));
+
+            if (currentPlayer != null &&
+                !result.Any(entry => IsCurrentPlayer(entry.Nick)))
+            {
+                result.Add(currentPlayer);
+            }
+
+            return result;
+        }
+    }
 
     // Определяем оформление места.
     private string GetPlaceClass(int rank)

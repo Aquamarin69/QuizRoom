@@ -1,7 +1,8 @@
-
 @page "/player/question"
 @layout PlayerLayout
+@using QuizRoom.Web.Services
 @implements IDisposable
+@inject NavigationManager Navigation
 
 <PageTitle>Вопрос — QuizRoom</PageTitle>
 
@@ -85,6 +86,8 @@
 
     protected override void OnInitialized()
     {
+        CurrentQuestion = FakeGameConnection.Shared.CurrentQuestion ?? CurrentQuestion;
+        TimeRemaining = CurrentQuestion.TimeLimitSec;
         _ = RunTimerAsync();
     }
 
@@ -120,14 +123,31 @@
         }
     }
 
-    private void SelectAnswer(int optionId)
+    private async Task SelectAnswer(int optionId)
     {
         if (AnswerAccepted || isTimedOut)
             return;
 
+        var code = FakeGameConnection.Shared.CurrentRoomCode;
+
+        if (string.IsNullOrWhiteSpace(code))
+            return;
+
         selectedOptionId = optionId;
-        AnswerAccepted = true;
-    }
+
+        var result = await FakeGameConnection.Shared.SubmitAnswerAsync(code, optionId);
+
+        if (!result.Accepted)
+        {
+            selectedOptionId = null;
+            AnswerAccepted = false;
+            return;
+        }
+
+            AnswerAccepted = true;
+            await Task.Delay(1000);
+            Navigation.NavigateTo("/player/question-result");
+        }
 
     public void Dispose()
     {
