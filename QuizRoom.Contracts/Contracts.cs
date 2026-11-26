@@ -91,14 +91,36 @@ public record PlayerQuestionResultDto(
     int Rank,
     List<LeaderboardEntryDto> TopLeaderboard);
 
+/// <summary>Число ответов по одному варианту.</summary>
+public record OptionAnswerCountDto(int OptionId, int Count);
+
 /// <summary>Итог вопроса для ведущего.</summary>
 public record HostQuestionResultDto(
     int CorrectOptionId,
     int AnsweredCount,
     int TotalPlayers,
-    List<LeaderboardEntryDto> TopLeaderboard);
+    List<LeaderboardEntryDto> TopLeaderboard,
+    List<OptionAnswerCountDto> AnswersPerOption);   // число ответов по каждому варианту
 
-public record JoinResult(bool Success, string? Error);       // Error: "Комната не найдена", "Игра уже началась", "Ник занят", "Недопустимая длина ника"
+/// <summary>Результат возврата игрока в игру после обрыва связи.</summary>
+public record RejoinResult(
+    bool Success,
+    string? Error,
+    RoomStatus Status,
+    int TotalPlayers,
+    QuestionForPlayerDto? CurrentQuestion,
+    bool AlreadyAnswered,
+    PlayerQuestionResultDto? LastResult);
+
+/// <summary>Итоги закрытого вопроса: для ведущего и для каждого игрока.</summary>
+public record QuestionClosure(
+    HostQuestionResultDto ForHost,
+    Dictionary<string, PlayerQuestionResultDto> ForPlayers);   // ключ — connectionId
+
+/// <summary>Результат отключения: хабу нужно знать, кому слать PlayerLeft.</summary>
+public record DisconnectResult(string Code, bool WasHost, string? Nick, int TotalPlayers);
+
+public record JoinResult(bool Success, string? Error);       // Error: "Комната не найдена", "Игра уже началась", "Ник занят", "Недопустимая длина ника", "Комната заполнена"
 public record AnswerResult(bool Accepted, string? Error);    // Error: "Время вышло", "Ответ уже отправлен"
 public record CreateRoomResult(bool Success, string? RoomCode, string? Error); // Error: "Викторина без вопросов"
 
@@ -110,13 +132,25 @@ public interface IRoomManager
     Task<CreateRoomResult> CreateRoomAsync(int hostId, string hostConnectionId, int quizId);
 
     JoinResult JoinRoom(string code, string nick, string connectionId);
+
+    /// <summary>Возврат игрока по нику с новым connectionId.</summary>
+    RejoinResult RejoinRoom(string code, string nick, string newConnectionId);
+
     bool StartGame(string code, string hostConnectionId);
     QuestionForPlayerDto? StartNextQuestion(string code);
     AnswerResult SubmitAnswer(string code, string connectionId, int optionId, DateTime receivedAtUtc);
-    void EndGame(string code);
+
+    /// <summary>Сколько игроков ответили и сколько всего.</summary>
+    (int Answered, int Total) GetAnswerCount(string code);
+
+    /// <summary>Закрыть вопрос. Идемпотентно: при гонке таймера и «все ответили» второй вызов вернёт null.</summary>
+    QuestionClosure? CloseQuestion(string code);
+
+    /// <summary>Завершить игру и вернуть итоговый рейтинг (для GameEnded).</summary>
+    List<LeaderboardEntryDto> EndGame(string code);
 
     /// <summary>Вызывается при разрыве соединения. Если это ведущий — игра завершается.</summary>
-    void HandleDisconnect(string connectionId);
+    DisconnectResult? HandleDisconnect(string connectionId);
 }
 
 /// <summary>Чистая функция подсчёта очков. Покрыть unit-тестами.</summary>
@@ -145,14 +179,18 @@ public interface IQuizHubServer
 
     // --- Игрок ---
     Task<JoinResult> JoinRoom(string roomCode, string nick);
+    Task<RejoinResult> RejoinRoom(string roomCode, string nick);
     Task<AnswerResult> SubmitAnswer(string roomCode, int optionId);
 }
 
 /// <summary>События, которые сервер отправляет клиентам.</summary>
 public interface IQuizHubClient
 {
-    // --- Ведущему ---
+    // --- Всей группе room:{code} (экран ожидания игрока показывает число игроков) ---
     Task PlayerJoined(string nick, int totalPlayers);
+    Task PlayerLeft(string nick, int totalPlayers);
+
+    // --- Ведущему ---
     Task AnswerCountChanged(int answered, int totalPlayers);
     Task HostQuestionEnded(HostQuestionResultDto result);
 
@@ -165,32 +203,3 @@ public interface IQuizHubClient
     // --- Игроку персонально ---
     Task PlayerQuestionEnded(PlayerQuestionResultDto result);
 }
-
-// 1. Новые DTO
-public record OptionAnswerCountDto(int OptionId, int Count);
-
-public record RejoinResult(bool Success, string? Error, RoomStatus Status, int TotalPlayers,
-    QuestionForPlayerDto? CurrentQuestion, bool AlreadyAnswered, PlayerQuestionResultDto? LastResult);
-
-public record QuestionClosure(HostQuestionResultDto ForHost,
-    Dictionary<string, PlayerQuestionResultDto> ForPlayers);   // ключ — connectionId
-
-public record DisconnectResult(string Code, bool WasHost, string? Nick, int TotalPlayers);
-
-// 2. HostQuestionResultDto: добавить поле
-List<OptionAnswerCountDto> AnswersPerOption   // «число ответов по каждому варианту»
-
-// 3. IRoomManager: добавить / изменить
-RejoinResult RejoinRoom(string code, string nick, string newConnectionId);
-(int Answered, int Total) GetAnswerCount(string code);
-QuestionClosure? CloseQuestion(string code);        // идемпотентно: при гонке таймера и «все ответили» второй вызов вернёт null
-List<LeaderboardEntryDto> EndGame(string code);     // было void, нужен итоговый рейтинг для GameEnded
-DisconnectResult? HandleDisconnect(string connectionId);   // было void, хабу нужно знать, кому слать PlayerLeft
-
-// 4. IQuizHubServer
-Task<RejoinResult> RejoinRoom(string roomCode, string nick);
-
-// 5. IQuizHubClient
-Task PlayerLeft(string nick, int totalPlayers);
-// PlayerJoined и PlayerLeft шлём всей группе room:{code}, а не только ведущему:
-// экран ожидания игрока показывает число игроков.
