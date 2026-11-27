@@ -1,0 +1,108 @@
+
+@using QuizRoom.Contracts
+
+<div class="leaderboard @(IsProjector ? "projector" : "")">
+
+    <div class="leaderboard-heading">
+        <span class="leaderboard-subtitle">РЕЗУЛЬТАТЫ ИГРЫ</span>
+        <h2 class="leaderboard-title">Итоговый рейтинг</h2>
+        <p class="leaderboard-description">Поздравляем участников!</p>
+    </div>
+
+    @if (Entries == null || Entries.Count == 0)
+    {
+        <div class="empty-message">
+            Пока нет участников
+        </div>
+    }
+    else
+    {
+        <div class="leaderboard-list">
+            @foreach (var entry in DisplayEntries)
+            {
+                <div @key="entry.Rank"
+                     class="leaderboard-item @(GetPlaceClass(entry.Rank)) @(IsCurrentPlayer(entry.Nick) ? "current-player" : "")">
+
+                    <div class="rank">
+                        @entry.Rank
+                    </div>
+
+                    <div class="player-info">
+                        <span class="player-name">@entry.Nick</span>
+
+                        @if (IsCurrentPlayer(entry.Nick))
+                        {
+                            <span class="you-label">Вы</span>
+                        }
+                    </div>
+
+                    <div class="player-score">
+                        <span class="score-value">@entry.Score</span>
+                        <span class="score-label">очков</span>
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    // Список участников рейтинга.
+    [Parameter]
+    public List<LeaderboardEntryDto> Entries { get; set; } = new();
+
+    // Никнейм текущего игрока.
+    [Parameter]
+    public string? CurrentPlayerNick { get; set; }
+
+    // Увеличенный режим для проектора.
+    [Parameter]
+    public bool IsProjector { get; set; }
+
+    // Показываем первые пять мест и текущего игрока, если он ниже пятого места.
+    private List<LeaderboardEntryDto> DisplayEntries
+    {
+        get
+        {
+            var ordered = Entries.OrderBy(entry => entry.Rank).ToList();
+            var result = ordered.Take(5).ToList();
+
+            var currentPlayer = ordered.FirstOrDefault(entry => IsCurrentPlayer(entry.Nick));
+
+            if (currentPlayer != null &&
+                !result.Any(entry => IsCurrentPlayer(entry.Nick)))
+            {
+                result.Add(currentPlayer);
+            }
+
+            return result;
+        }
+    }
+
+    // Определяем оформление места.
+    private string GetPlaceClass(int rank)
+    {
+        return rank switch
+        {
+            1 => "place-first",
+            2 => "place-second",
+            3 => "place-third",
+            _ => "place-other"
+        };
+    }
+
+    // Проверяем, является ли участник текущим игроком.
+    private bool IsCurrentPlayer(string nick)
+    {
+        if (string.IsNullOrWhiteSpace(CurrentPlayerNick))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            nick,
+            CurrentPlayerNick,
+            StringComparison.OrdinalIgnoreCase);
+    }
+}

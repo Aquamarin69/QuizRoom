@@ -1,0 +1,157 @@
+@page "/player/question"
+@layout PlayerLayout
+@using QuizRoom.Web.Services
+@implements IDisposable
+@inject NavigationManager Navigation
+
+<PageTitle>Вопрос — QuizRoom</PageTitle>
+
+<div class="question-page">
+    <section class="question-card">
+
+        <div class="question-header">
+            <span class="question-label">QUIZROOM</span>
+            <span class="question-number">
+                Вопрос @CurrentQuestion.Index из @CurrentQuestion.Total
+            </span>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-circle @(TimeRemaining <= 5 ? "timer-danger" : "")">
+                <span>@TimeRemaining</span>
+                <small>секунд</small>
+            </div>
+        </div>
+
+        <h1 class="question-title">
+            @CurrentQuestion.Text
+        </h1>
+
+        <div class="answer-options">
+            @foreach (var option in CurrentQuestion.Options)
+            {
+                <button class="answer-button
+                    @(selectedOptionId == option.Id ? "selected" : "")
+                    @(AnswerAccepted || isTimedOut ? "disabled" : "")"
+                        disabled="@(AnswerAccepted || isTimedOut)"
+                        @onclick="() => SelectAnswer(option.Id)">
+                    @option.Text
+                </button>
+            }
+        </div>
+
+        @if (AnswerAccepted)
+        {
+            <div class="question-message success">
+                Ответ принят! Ожидай окончания вопроса.
+            </div>
+        }
+        else if (isTimedOut)
+        {
+            <div class="question-message error">
+                Время вышло. Ожидай следующий вопрос.
+            </div>
+        }
+        else
+        {
+            <p class="question-hint">
+                Выбери один вариант ответа
+            </p>
+        }
+
+    </section>
+</div>
+
+@code {
+    private QuestionForPlayerDto CurrentQuestion = new(
+        1,
+        10,
+        "Какая планета является самой большой в Солнечной системе?",
+        20,
+        DateTime.UtcNow,
+        new List<OptionForPlayerDto>
+        {
+            new(1, "Земля"),
+            new(2, "Юпитер"),
+            new(3, "Марс"),
+            new(4, "Венера")
+        });
+
+    private int TimeRemaining { get; set; } = 20;
+    private int? selectedOptionId;
+    private bool AnswerAccepted;
+    private bool isTimedOut;
+
+    private readonly CancellationTokenSource timerCancellation = new();
+
+    protected override void OnInitialized()
+    {
+        CurrentQuestion = FakeGameConnection.Shared.CurrentQuestion ?? CurrentQuestion;
+        TimeRemaining = CurrentQuestion.TimeLimitSec;
+        _ = RunTimerAsync();
+    }
+
+    private async Task RunTimerAsync()
+    {
+        try
+        {
+            while (TimeRemaining > 0 &&
+                   !AnswerAccepted &&
+                   !timerCancellation.IsCancellationRequested)
+            {
+                await Task.Delay(250, timerCancellation.Token);
+
+                var elapsed = (DateTime.UtcNow -
+                    CurrentQuestion.StartedAtUtc).TotalSeconds;
+
+                TimeRemaining = Math.Max(
+                    0,
+                    CurrentQuestion.TimeLimitSec - (int)elapsed);
+
+                await InvokeAsync(StateHasChanged);
+            }
+
+            if (TimeRemaining == 0 && !AnswerAccepted)
+            {
+                isTimedOut = true;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Таймер остановлен при уничтожении компонента.
+        }
+    }
+
+    private async Task SelectAnswer(int optionId)
+    {
+        if (AnswerAccepted || isTimedOut)
+            return;
+
+        var code = FakeGameConnection.Shared.CurrentRoomCode;
+
+        if (string.IsNullOrWhiteSpace(code))
+            return;
+
+        selectedOptionId = optionId;
+
+        var result = await FakeGameConnection.Shared.SubmitAnswerAsync(code, optionId);
+
+        if (!result.Accepted)
+        {
+            selectedOptionId = null;
+            AnswerAccepted = false;
+            return;
+        }
+
+            AnswerAccepted = true;
+            await Task.Delay(1000);
+            Navigation.NavigateTo("/player/question-result");
+        }
+
+    public void Dispose()
+    {
+        timerCancellation.Cancel();
+        timerCancellation.Dispose();
+    }
+}

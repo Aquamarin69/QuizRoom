@@ -1,0 +1,282 @@
+
+/* =====================================================
+   ОСНОВНОЙ МАКЕТ QUIZROOM
+   Анимированный фон и современное оформление
+   ===================================================== */
+
+.player-layout {
+    position: relative;
+    isolation: isolate;
+
+    min-height: 100vh;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #d9c9eb,
+        #c4afe0,
+        #e8d9f2,
+        #cbb8e4
+    );
+
+    background-size: 300% 300%;
+
+    animation: layoutBackground 18s ease infinite;
+}
+
+/* Плавное движение градиента */
+@keyframes layoutBackground {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Световые пятна на фоне */
+.player-layout::before {
+    content: "";
+    position: fixed;
+    inset: -20%;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 15% 25%,
+            rgba(255, 255, 255, 0.4),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 85% 30%,
+            rgba(170, 125, 210, 0.35),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 55% 85%,
+            rgba(240, 220, 255, 0.55),
+            transparent 30%
+        );
+
+    filter: blur(35px);
+
+    animation: lightFloat 14s ease-in-out infinite alternate;
+}
+
+/* Движение световых пятен */
+@keyframes lightFloat {
+    0% {
+        transform: translate(-2%, -1%) scale(1);
+    }
+
+    50% {
+        transform: translate(2%, 2%) scale(1.08);
+    }
+
+    100% {
+        transform: translate(-1%, 3%) scale(1.03);
+    }
+}
+
+/* =====================================================
+   ШАПКА ПРИЛОЖЕНИЯ
+   ===================================================== */
+
+.player-header {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    min-height: 82px;
+
+    padding: 12px 5%;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: rgba(255, 255, 255, 0.55);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+
+    box-shadow:
+        0 5px 20px rgba(90, 55, 120, 0.08);
+
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+/* =====================================================
+   ЛОГОТИП QUIZROOM
+   ===================================================== */
+
+.player-logo {
+    position: relative;
+
+    color: #69417f;
+
+    font-size: 36px;
+    font-weight: 850;
+
+    text-decoration: none;
+    letter-spacing: -1.5px;
+
+    transition:
+        transform 0.25s ease,
+        filter 0.25s ease;
+}
+
+.player-logo:hover {
+    transform: scale(1.04);
+    filter: drop-shadow(0 4px 8px rgba(105, 65, 127, 0.2));
+}
+
+.logo-accent {
+    color: #ad8bc6;
+}
+
+/* =====================================================
+   КНОПКА ПРОФИЛЯ
+   ===================================================== */
+
+.profile-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 125px;
+    min-height: 44px;
+
+    padding: 9px 24px;
+    box-sizing: border-box;
+
+    background: linear-gradient(
+        135deg,
+        #ad8bc6,
+        #89649e
+    );
+
+    color: #ffffff;
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 25px;
+
+    text-decoration: none;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    box-shadow:
+        0 5px 14px rgba(105, 65, 127, 0.18);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+.profile-button:hover {
+    background: linear-gradient(
+        135deg,
+        #9871b3,
+        #69417f
+    );
+
+    color: #ffffff;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 9px 20px rgba(105, 65, 127, 0.28);
+}
+
+.profile-button:active {
+    transform: scale(0.96);
+}
+
+/* =====================================================
+   ОСНОВНАЯ ОБЛАСТЬ СТРАНИЦЫ
+   ===================================================== */
+
+.player-content {
+    position: relative;
+    z-index: 1;
+
+    flex: 1;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 35px 5%;
+}
+
+/* =====================================================
+   АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ
+   ===================================================== */
+
+@media (max-width: 900px) {
+    .player-header {
+        padding: 12px 4%;
+    }
+
+    .player-content {
+        padding: 25px 4%;
+    }
+}
+
+/* =====================================================
+   АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ
+   ===================================================== */
+
+@media (max-width: 600px) {
+    .player-header {
+        min-height: 66px;
+        padding: 10px 16px;
+    }
+
+    .player-logo {
+        font-size: 28px;
+    }
+
+    .profile-button {
+        min-width: 100px;
+        min-height: 39px;
+
+        padding: 7px 15px;
+
+        font-size: 15px;
+    }
+
+    .player-content {
+        padding: 20px 12px;
+    }
+}
+
+/* =====================================================
+   ОТКЛЮЧЕНИЕ АНИМАЦИЙ ПО НАСТРОЙКАМ УСТРОЙСТВА
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .player-layout,
+    .player-layout::before {
+        animation: none !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
